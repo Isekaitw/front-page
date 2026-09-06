@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>後台編輯 | 妖契者</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="admin-shell">
+
+  <!-- ===================== 登入畫面 ===================== -->
+  <div id="loginView">
+    <div class="container">
+      <div class="admin-login-wrap">
+        <h1>後台登入</h1>
+        <p class="admin-sub" id="loginSub">輸入 GitHub 帳號與存取權杖（Token）以編輯網站文字內容。這組資料不會上傳到任何地方，只會用來直接呼叫 GitHub 幫你存檔。</p>
+
+        <div class="admin-status" id="loginStatus"></div>
+
+        <!-- 解鎖表單：這台裝置已經設定過一次 -->
+        <div id="unlockForm" style="display:none;">
+          <div class="admin-field">
+            <label for="inUnlockPw">解鎖密碼</label>
+            <input type="password" id="inUnlockPw" autocomplete="off">
+          </div>
+          <button class="btn btn-primary" id="unlockBtn" style="width:100%; justify-content:center;">解鎖</button>
+          <p style="margin-top:18px; text-align:center;">
+            <a href="#" id="forgotLink" style="color:var(--text-low); font-size:0.82rem;">忘記密碼／要換一組 Token？點這裡重新設定</a>
+          </p>
+        </div>
+
+        <!-- 初次設定表單：第一次在這台裝置使用，或重新設定 -->
+        <div id="setupForm">
+          <div class="admin-field">
+            <label for="inRepo">Repository（格式：GitHub帳號/repo名稱）</label>
+            <input type="text" id="inRepo" placeholder="例如：yourname/starpath-site" autocomplete="off">
+          </div>
+          <div class="admin-field">
+            <label for="inBranch">分支（不確定就留 main）</label>
+            <input type="text" id="inBranch" placeholder="main" autocomplete="off">
+          </div>
+          <div class="admin-field">
+            <label for="inToken">Personal Access Token</label>
+            <input type="password" id="inToken" placeholder="ghp_ 或 github_pat_ 開頭的字串" autocomplete="off">
+          </div>
+          <div class="admin-field">
+            <label for="inNewPw">設定一組解鎖密碼（自己好記就好，之後登入只要輸入這組）</label>
+            <input type="password" id="inNewPw" autocomplete="off">
+          </div>
+          <div class="admin-field">
+            <label for="inNewPw2">再輸入一次確認解鎖密碼</label>
+            <input type="password" id="inNewPw2" autocomplete="off">
+          </div>
+          <label class="admin-check">
+            <input type="checkbox" id="inRemember" checked>
+            在這台裝置加密保存（下次只要輸入解鎖密碼，不用重貼 Token；公用電腦請取消勾選）
+          </label>
+
+          <button class="btn btn-primary" id="loginBtn" style="width:100%; justify-content:center;">登入並設定</button>
+
+          <details class="admin-help">
+            <summary>沒有 Token？點這裡看怎麼申請（只需要做一次）</summary>
+            <ol>
+              <li>用電腦或手機瀏覽器開啟：<code>https://github.com/settings/personal-access-tokens/new</code>（需先登入 GitHub）</li>
+              <li>Token name 隨意填，例如「網站後台」</li>
+              <li>Expiration（有效期限）選你想要的天數，之後過期只要重新申請一次即可</li>
+              <li>Repository access 選 <strong>Only select repositories</strong>，然後選這個網站所在的 repository</li>
+              <li>往下找到 <strong>Permissions → Repository permissions → Contents</strong>，改成 <strong>Read and write</strong></li>
+              <li>捲到最下面按 <strong>Generate token</strong></li>
+              <li>畫面上出現的一長串文字（<code>github_pat_...</code>）就是你的 Token，<strong>只會顯示這一次</strong>，請直接複製貼到上面「Personal Access Token」欄位</li>
+              <li>上面「Repository」欄位請填 <code>你的GitHub帳號/repo名稱</code>，例如 <code>abc123/starpath-site</code></li>
+            </ol>
+            <p style="margin-top:10px;">這個 Token 只授權「讀寫這一個 repository 的內容」，之後可以隨時到 GitHub 的 Token 設定頁面刪除或重新產生，不會影響你的 GitHub 帳號安全。</p>
+          </details>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 編輯畫面 ===================== -->
+  <div id="editorView" style="display:none;">
+    <div class="admin-topbar">
+      <div class="container">
+        <div class="admin-topbar-brand">
+          <img src="logo.png" alt="Logo" style="height:26px;width:26px;border-radius:6px;">
+          後台編輯
+        </div>
+        <div style="display:flex; align-items:center; gap:18px;">
+          <button class="admin-logout" id="reloadBtn">重新載入（放棄未儲存的變更）</button>
+          <button class="admin-logout" id="logoutBtn">登出</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-main">
+      <div class="container">
+
+        <div class="admin-status" id="editorStatus"></div>
+
+        <div class="admin-tabs" id="adminTabs">
+          <button class="admin-tab-btn active" data-tab="home">首頁</button>
+          <button class="admin-tab-btn" data-tab="membersPage">成員介紹頁</button>
+          <button class="admin-tab-btn" data-tab="aboutPage">關於我們頁</button>
+          <button class="admin-tab-btn" data-tab="videosPage">影片精選頁</button>
+          <button class="admin-tab-btn" data-tab="site">社群連結與頁尾</button>
+          <button class="admin-tab-btn" data-tab="channels">YouTube 頻道清單</button>
+        </div>
+
+        <!-- 首頁 -->
+        <div class="admin-panel active" data-panel="home">
+          <div class="admin-card">
+            <h3>橫幅標語</h3>
+            <div class="admin-field">
+              <label for="f_heroTitle">首頁大標題</label>
+              <input type="text" id="f_heroTitle">
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <h3>我們是誰</h3>
+            <div class="admin-field">
+              <label for="f_aboutText">團隊簡介文字</label>
+              <textarea id="f_aboutText"></textarea>
+            </div>
+            <div class="admin-field">
+              <label for="f_foundedYear">成立年分</label>
+              <input type="text" id="f_foundedYear">
+            </div>
+            <div class="admin-field">
+              <label for="f_memberCount">成員數量</label>
+              <input type="text" id="f_memberCount">
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <h3>成員預覽卡片</h3>
+            <p class="admin-card-sub">照片檔名固定對應第 1～N 位為 member-01.jpg、member-02.jpg……，要換照片請直接到 GitHub 上傳同名圖片覆蓋，這裡只能改文字。</p>
+            <div id="memberEditorList"></div>
+            <button class="btn btn-outline" id="addMemberBtn" type="button">＋ 新增一位成員</button>
+          </div>
+        </div>
+
+        <!-- 成員介紹頁 -->
+        <div class="admin-panel" data-panel="membersPage">
+          <div class="admin-card">
+            <h3>成員介紹頁文字</h3>
+            <div class="admin-field">
+              <label for="f_membersIntro">頁面說明文字</label>
+              <textarea id="f_membersIntro"></textarea>
+            </div>
+            <div class="admin-field">
+              <label for="f_membersPlaceholderTitle">建置中提示標題</label>
+              <input type="text" id="f_membersPlaceholderTitle">
+            </div>
+            <div class="admin-field">
+              <label for="f_membersPlaceholderText">建置中提示內文</label>
+              <textarea id="f_membersPlaceholderText"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- 關於我們頁 -->
+        <div class="admin-panel" data-panel="aboutPage">
+          <div class="admin-card">
+            <h3>關於我們／聯絡我們頁文字</h3>
+            <div class="admin-field">
+              <label for="f_aboutIntro">頁面說明文字</label>
+              <textarea id="f_aboutIntro"></textarea>
+            </div>
+            <div class="admin-field">
+              <label for="f_aboutPlaceholderTitle">建置中提示標題</label>
+              <input type="text" id="f_aboutPlaceholderTitle">
+            </div>
+            <div class="admin-field">
+              <label for="f_aboutPlaceholderText">建置中提示內文</label>
+              <textarea id="f_aboutPlaceholderText"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- 影片精選頁 -->
+        <div class="admin-panel" data-panel="videosPage">
+          <div class="admin-card">
+            <h3>影片精選頁文字</h3>
+            <div class="admin-field">
+              <label for="f_videosIntro">頁面說明文字</label>
+              <textarea id="f_videosIntro"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- 社群連結與頁尾 -->
+        <div class="admin-panel" data-panel="site">
+          <div class="admin-card">
+            <h3>社群連結（全站頁尾共用）</h3>
+            <div class="admin-field">
+              <label for="f_socialYoutube">YouTube 連結</label>
+              <input type="url" id="f_socialYoutube" placeholder="https://www.youtube.com/@your_channel">
+            </div>
+            <div class="admin-field">
+              <label for="f_socialTwitter">X（Twitter）連結</label>
+              <input type="url" id="f_socialTwitter" placeholder="https://x.com/your_account">
+            </div>
+            <div class="admin-field">
+              <label for="f_socialDiscord">Discord 連結</label>
+              <input type="url" id="f_socialDiscord" placeholder="https://discord.gg/xxxxxxx">
+            </div>
+          </div>
+          <div class="admin-card">
+            <h3>頁尾版權文字</h3>
+            <div class="admin-field">
+              <label for="f_footerCopyright">版權文字</label>
+              <input type="text" id="f_footerCopyright">
+            </div>
+          </div>
+        </div>
+
+        <!-- YouTube 頻道清單 -->
+        <div class="admin-panel" data-panel="channels">
+          <div class="admin-card">
+            <h3>YouTube 頻道清單（自動抓取影片用）</h3>
+            <p class="admin-card-sub">
+              網站會每 6 小時自動連到下面每個頻道抓最新影片／直播，顯示在「影片精選」頁與首頁。
+              頻道 ID 是 <code>UC</code> 開頭的一串英數字，可以到該頻道「簡介」頁面，或用網址列的
+              <code>youtube.com/channel/UC.......</code> 找到；如果頻道網址是自訂網址（例如 <code>youtube.com/@名稱</code>），
+              可用「檢視網頁原始碼」搜尋 <code>channel_id</code>，或用網路上的「YouTube channel ID finder」工具查詢。
+            </p>
+            <div id="channelEditorList"></div>
+            <button class="btn btn-outline" id="addChannelBtn" type="button">＋ 新增一個頻道</button>
+            <p class="admin-card-sub" style="margin-top:16px;">
+              提醒：自動抓取需要在 GitHub repository 的 <strong>Settings → Secrets and variables → Actions</strong> 設定一組
+              <code>YOUTUBE_API_KEY</code>（YouTube Data API v3 金鑰），這一步無法從後台完成，只需要設定一次。
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="admin-save-bar">
+      <div class="container" style="display:flex; align-items:center; gap:16px;">
+        <div class="admin-status" id="saveStatus"></div>
+        <button class="btn btn-primary" id="saveBtn" style="white-space:nowrap;">儲存所有變更</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  const API = 'https://api.github.com';
+  let auth = null;          // { repo, branch, token }
+  let contentSha = null;    // sha of content.json on GitHub
+  let channelsSha = null;   // sha of channels.json on GitHub
+
+  const loginView = document.getElementById('loginView');
+  const editorView = document.getElementById('editorView');
+  const loginStatus = document.getElementById('loginStatus');
+  const editorStatus = document.getElementById('editorStatus');
+  const saveStatus = document.getElementById('saveStatus');
+
+  function showStatus(el, msg, type) {
+    el.textContent = msg;
+    el.className = 'admin-status show ' + (type || 'info');
+  }
+  function hideStatus(el) {
+    el.className = 'admin-status';
+  }
+
+  function b64DecodeUnicode(b64) {
+    const binary = atob(b64.replace(/\n/g, ''));
+    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+    return new TextDecoder('utf-8').decode(bytes);
+  }
+  function b64EncodeUnicode(str) {
+    const bytes = new TextEncoder().encode(str);
+    let binary = '';
+    bytes.forEach(b => binary += String.fromCharCode(b));
+    return btoa(binary);
+  }
+
+  function ghHeaders() {
+    return {
+      'Authorization': 'token ' + auth.token,
+      'Accept': 'application/vnd.github+json'
+    };
+  }
+
+  async function ghGetFile(path) {
+    const res = await fetch(`${API}/repos/${auth.repo}/contents/${path}?ref=${encodeURIComponent(auth.branch)}`, {
+      headers: ghHeaders()
+    });
+    if (!res.ok) {
+      const err = new Error('讀取 ' + path + ' 失敗（' + res.status + '）');
+      err.status = res.status;
+      throw err;
+    }
+    const data = await res.json();
+    return { json: JSON.parse(b64DecodeUnicode(data.content)), sha: data.sha };
+  }
+
+  async function ghPutFile(path, obj, sha, message) {
+    const res = await fetch(`${API}/repos/${auth.repo}/contents/${path}`, {
+      method: 'PUT',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, ghHeaders()),
+      body: JSON.stringify({
+        message: message,
+        content: b64EncodeUnicode(JSON.stringify(obj, null, 2)),
+        sha: sha,
+        branch: auth.branch
+      })
+    });
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      const err = new Error(errBody.message || ('儲存 ' + path + ' 失敗（' + res.status + '）'));
+      err.status = res.status;
+      throw err;
+    }
+    const data = await res.json();
+    return data.content.sha;
+  }
+
+  // ---------- 加密工具（用解鎖密碼保護 Token，不是明文存放）----------
+  const VAULT_KEY = 'vtuber_admin_vault';
+
+  function bufToB64(buf) {
+    let binary = '';
+    new Uint8Array(buf).forEach(b => binary += String.fromCharCode(b));
+    return btoa(binary);
+  }
+  function b64ToBuf(b64) {
+    const binary = atob(b64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes.buffer;
+  }
+
+  async function deriveKey(password, saltBuf) {
+    const enc = new TextEncoder();
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']
+    );
+    return crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt: saltBuf, iterations: 150000, hash: 'SHA-256' },
+      keyMaterial,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt']
+    );
+  }
+
+  async function encryptVault(password, obj) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await deriveKey(password, salt);
+    const enc = new TextEncoder();
+    const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(JSON.stringify(obj)));
+    return { salt: bufToB64(salt), iv: bufToB64(iv), data: bufToB64(ciphertext) };
+  }
+
+  async function decryptVault(password, vault) {
+    const salt = b64ToBuf(vault.salt);
+    const iv = b64ToBuf(vault.iv);
+    const key = await deriveKey(password, salt);
+    const ciphertext = b64ToBuf(vault.data);
+    const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
+    return JSON.parse(new TextDecoder().decode(plainBuf));
+  }
+
+  // ---------- 登入 ----------
+  const unlockForm = document.getElementById('unlockForm');
+  const setupForm = document.getElementById('setupForm');
+  const loginSub = document.getElementById('loginSub');
+
+  function getVault() {
+    const raw = localStorage.getItem(VAULT_KEY);
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch (e) { return null; }
+  }
+
+  function showUnlockScreen() {
+    unlockForm.style.display = 'block';
+    setupForm.style.display = 'none';
+    loginSub.textContent = '這台裝置已經設定過，輸入你的解鎖密碼即可繼續編輯。';
+    hideStatus(loginStatus);
+    document.getElementById('inUnlockPw').value = '';
+  }
+
+  function showSetupScreen() {
+    unlockForm.style.display = 'none';
+    setupForm.style.display = 'block';
+    loginSub.textContent = '第一次使用請完整填寫下面資料；設定好之後，這台裝置以後只要輸入解鎖密碼就好，不用再貼一次 Token。';
+    hideStatus(loginStatus);
+  }
+
+  // 用 Token 向 GitHub 驗證這組資料真的可以讀寫這個 repo
+  async function verifyAuth(candidateAuth) {
+    const res = await fetch(`${API}/repos/${candidateAuth.repo}`, {
+      headers: { 'Authorization': 'token ' + candidateAuth.token, 'Accept': 'application/vnd.github+json' }
+    });
+    if (!res.ok) {
+      if (res.status === 404) throw new Error('找不到這個 repository，請確認名稱或 Token 權限。');
+      if (res.status === 401) throw new Error('Token 無效或已過期，請重新確認貼上的 Token。');
+      throw new Error('驗證失敗（' + res.status + '）');
+    }
+    const repoData = await res.json();
+    if (repoData.permissions && repoData.permissions.push === false) {
+      throw new Error('這個 Token 沒有寫入權限，請確認 Token 的 Contents 權限設定為 Read and write。');
+    }
+  }
+
+  // 初次設定 / 重新設定
+  document.getElementById('loginBtn').addEventListener('click', async () => {
+    const repo = document.getElementById('inRepo').value.trim();
+    const branch = document.getElementById('inBranch').value.trim() || 'main';
+    const token = document.getElementById('inToken').value.trim();
+    const newPw = document.getElementById('inNewPw').value;
+    const newPw2 = document.getElementById('inNewPw2').value;
+    const remember = document.getElementById('inRemember').checked;
+
+    if (!repo || !token || repo.indexOf('/') === -1) {
+      showStatus(loginStatus, '請填寫正確的 Repository（帳號/repo名稱）與 Token。', 'err');
+      return;
+    }
+    if (remember) {
+      if (newPw.length < 4) {
+        showStatus(loginStatus, '解鎖密碼至少要 4 個字，建議設長一點比較安全。', 'err');
+        return;
+      }
+      if (newPw !== newPw2) {
+        showStatus(loginStatus, '兩次輸入的解鎖密碼不一樣，請再確認一次。', 'err');
+        return;
+      }
+    }
+
+    const candidateAuth = { repo, branch, token };
+    showStatus(loginStatus, '登入驗證中…', 'info');
+
+    try {
+      await verifyAuth(candidateAuth);
+
+      if (remember) {
+        const vault = await encryptVault(newPw, candidateAuth);
+        localStorage.setItem(VAULT_KEY, JSON.stringify(vault));
+      }
+
+      auth = candidateAuth;
+      await enterEditor();
+    } catch (e) {
+      showStatus(loginStatus, e.message, 'err');
+      auth = null;
+    }
+  });
+
+  // 用解鎖密碼解密、登入
+  document.getElementById('unlockBtn').addEventListener('click', async () => {
+    const pw = document.getElementById('inUnlockPw').value;
+    const vault = getVault();
+    if (!vault) { showSetupScreen(); return; }
+    if (!pw) {
+      showStatus(loginStatus, '請輸入解鎖密碼。', 'err');
+      return;
+    }
+    showStatus(loginStatus, '解鎖中…', 'info');
+    try {
+      const decrypted = await decryptVault(pw, vault);
+      // 順便確認 Token 是否還有效（可能被撤銷或過期）
+      await verifyAuth(decrypted);
+      auth = decrypted;
+      await enterEditor();
+    } catch (e) {
+      showStatus(loginStatus, '密碼錯誤，或這組 Token 已失效（' + (e.message || '請再試一次') + '）', 'err');
+    }
+  });
+
+  document.getElementById('inUnlockPw').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('unlockBtn').click();
+  });
+
+  document.getElementById('forgotLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    if (confirm('確定要清除這台裝置保存的登入資料嗎？（只會清除本機保存的加密複本，不會影響 GitHub 上的 Token 本身，該 Token 之後可以到 GitHub 網站上自行刪除）')) {
+      localStorage.removeItem(VAULT_KEY);
+      showSetupScreen();
+    }
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    auth = null;
+    editorView.style.display = 'none';
+    loginView.style.display = 'block';
+    if (getVault()) showUnlockScreen(); else showSetupScreen();
+  });
+
+  document.getElementById('reloadBtn').addEventListener('click', () => {
+    if (confirm('確定要放棄目前未儲存的變更，重新載入嗎？')) {
+      enterEditor();
+    }
+  });
+
+  // ---------- 進入編輯畫面 ----------
+  let contentData = null;
+  let channelsData = null;
+
+  async function enterEditor() {
+    showStatus(editorStatus, '載入內容中…', 'info');
+    editorView.style.display = 'block';
+    loginView.style.display = 'none';
+    try {
+      const [c, ch] = await Promise.all([
+        ghGetFile('content.json'),
+        ghGetFile('channels.json')
+      ]);
+      contentData = c.json;
+      contentSha = c.sha;
+      channelsData = ch.json;
+      channelsSha = ch.sha;
+      fillForm();
+      hideStatus(editorStatus);
+    } catch (e) {
+      showStatus(editorStatus, e.message, 'err');
+    }
+  }
+
+  // ---------- 分頁切換 ----------
+  document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelector(`.admin-panel[data-panel="${btn.dataset.tab}"]`).classList.add('active');
+    });
+  });
+
+  // ---------- 表單填入 ----------
+  function fillForm() {
+    document.getElementById('f_heroTitle').value = contentData.home?.heroTitle || '';
+    document.getElementById('f_aboutText').value = contentData.home?.aboutText || '';
+    document.getElementById('f_foundedYear').value = contentData.home?.stats?.foundedYear || '';
+    document.getElementById('f_memberCount').value = contentData.home?.stats?.memberCount || '';
+
+    document.getElementById('f_membersIntro').value = contentData.membersPage?.intro || '';
+    document.getElementById('f_membersPlaceholderTitle').value = contentData.membersPage?.placeholderTitle || '';
+    document.getElementById('f_membersPlaceholderText').value = contentData.membersPage?.placeholderText || '';
+
+    document.getElementById('f_aboutIntro').value = contentData.aboutPage?.intro || '';
+    document.getElementById('f_aboutPlaceholderTitle').value = contentData.aboutPage?.placeholderTitle || '';
+    document.getElementById('f_aboutPlaceholderText').value = contentData.aboutPage?.placeholderText || '';
+
+    document.getElementById('f_videosIntro').value = contentData.videosPage?.intro || '';
+
+    document.getElementById('f_socialYoutube').value = contentData.site?.social?.youtube || '';
+    document.getElementById('f_socialTwitter').value = contentData.site?.social?.twitter || '';
+    document.getElementById('f_socialDiscord').value = contentData.site?.social?.discord || '';
+    document.getElementById('f_footerCopyright').value = contentData.site?.footerCopyright || '';
+
+    renderMemberEditors(contentData.home?.members || []);
+    renderChannelEditors(channelsData.channels || []);
+  }
+
+  // ---------- 成員預覽卡片（重複區塊）----------
+  function renderMemberEditors(members) {
+    const wrap = document.getElementById('memberEditorList');
+    wrap.innerHTML = members.map((m, i) => `
+      <div class="admin-card" data-member-row="${i}" style="background:var(--bg-elevated-2);">
+        <div class="admin-field"><label>成員名稱</label><input type="text" class="m-name" value="${escapeAttr(m.name)}"></div>
+        <div class="admin-field"><label>代表動物／副標</label><input type="text" class="m-role" value="${escapeAttr(m.role)}"></div>
+        <div class="admin-field"><label>一句話介紹</label><textarea class="m-desc">${escapeHtml(m.desc)}</textarea></div>
+        <div class="admin-field"><label>頻道連結</label><input type="url" class="m-url" value="${escapeAttr(m.channelUrl)}"></div>
+        <button type="button" class="admin-remove-btn" data-remove-member="${i}">移除這位成員</button>
+      </div>
+    `).join('');
+    wrap.querySelectorAll('[data-remove-member]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = Number(btn.dataset.removeMember);
+        const current = readMembersFromForm();
+        current.splice(idx, 1);
+        renderMemberEditors(current);
+      });
+    });
+  }
+  document.getElementById('addMemberBtn').addEventListener('click', () => {
+    const current = readMembersFromForm();
+    current.push({ name: '', role: '', desc: '', channelUrl: '#' });
+    renderMemberEditors(current);
+  });
+  function readMembersFromForm() {
+    return Array.from(document.querySelectorAll('[data-member-row]')).map(row => ({
+      name: row.querySelector('.m-name').value.trim(),
+      role: row.querySelector('.m-role').value.trim(),
+      desc: row.querySelector('.m-desc').value.trim(),
+      channelUrl: row.querySelector('.m-url').value.trim() || '#'
+    }));
+  }
+
+  // ---------- 頻道清單（重複區塊）----------
+  function renderChannelEditors(channels) {
+    const wrap = document.getElementById('channelEditorList');
+    wrap.innerHTML = channels.map((c, i) => `
+      <div class="admin-channel-row" data-channel-row="${i}">
+        <input type="text" class="c-name" placeholder="成員名稱" value="${escapeAttr(c.name)}">
+        <input type="text" class="c-id" placeholder="頻道 ID（UC 開頭）" value="${escapeAttr(c.channel_id)}">
+        <button type="button" class="admin-remove-btn" data-remove-channel="${i}">移除</button>
+      </div>
+    `).join('');
+    wrap.querySelectorAll('[data-remove-channel]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = Number(btn.dataset.removeChannel);
+        const current = readChannelsFromForm();
+        current.splice(idx, 1);
+        renderChannelEditors(current);
+      });
+    });
+  }
+  document.getElementById('addChannelBtn').addEventListener('click', () => {
+    const current = readChannelsFromForm();
+    current.push({ name: '', channel_id: '' });
+    renderChannelEditors(current);
+  });
+  function readChannelsFromForm() {
+    return Array.from(document.querySelectorAll('[data-channel-row]')).map(row => ({
+      name: row.querySelector('.c-name').value.trim(),
+      channel_id: row.querySelector('.c-id').value.trim()
+    }));
+  }
+
+  function escapeHtml(str) {
+    return (str || '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  }
+  function escapeAttr(str) {
+    return escapeHtml(str).replace(/"/g, '&quot;');
+  }
+
+  // ---------- 儲存 ----------
+  document.getElementById('saveBtn').addEventListener('click', async () => {
+    showStatus(saveStatus, '儲存中…', 'info');
+
+    const newContent = {
+      site: {
+        footerCopyright: document.getElementById('f_footerCopyright').value.trim(),
+        social: {
+          youtube: document.getElementById('f_socialYoutube').value.trim() || '#',
+          twitter: document.getElementById('f_socialTwitter').value.trim() || '#',
+          discord: document.getElementById('f_socialDiscord').value.trim() || '#'
+        }
+      },
+      home: {
+        heroTitle: document.getElementById('f_heroTitle').value.trim(),
+        members: readMembersFromForm(),
+        aboutText: document.getElementById('f_aboutText').value.trim(),
+        stats: {
+          foundedYear: document.getElementById('f_foundedYear').value.trim(),
+          memberCount: document.getElementById('f_memberCount').value.trim()
+        }
+      },
+      membersPage: {
+        intro: document.getElementById('f_membersIntro').value.trim(),
+        placeholderTitle: document.getElementById('f_membersPlaceholderTitle').value.trim(),
+        placeholderText: document.getElementById('f_membersPlaceholderText').value.trim()
+      },
+      aboutPage: {
+        intro: document.getElementById('f_aboutIntro').value.trim(),
+        placeholderTitle: document.getElementById('f_aboutPlaceholderTitle').value.trim(),
+        placeholderText: document.getElementById('f_aboutPlaceholderText').value.trim()
+      },
+      videosPage: {
+        intro: document.getElementById('f_videosIntro').value.trim()
+      }
+    };
+
+    const newChannels = { channels: readChannelsFromForm() };
+
+    try {
+      contentSha = await ghPutFile('content.json', newContent, contentSha, '後台更新網站文字內容');
+      channelsSha = await ghPutFile('channels.json', newChannels, channelsSha, '後台更新 YouTube 頻道清單');
+      contentData = newContent;
+      channelsData = newChannels;
+      showStatus(saveStatus, '已儲存！GitHub Pages 約 1 分鐘後會更新到正式網站。', 'ok');
+    } catch (e) {
+      if (e.status === 409) {
+        showStatus(saveStatus, '儲存失敗：內容在其他地方被更新過，請按左上角「重新載入」後再修改一次。', 'err');
+      } else {
+        showStatus(saveStatus, e.message, 'err');
+      }
+    }
+  });
+
+  // ---------- 初始化：依這台裝置是否已設定過，顯示解鎖畫面或初次設定畫面 ----------
+  if (getVault()) showUnlockScreen(); else showSetupScreen();
+})();
+</script>
+</body>
+</html>

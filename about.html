@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>關於我們 | 妖世</title>
+<title>關於我們 | 妖契者</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,7 +12,7 @@
   <div class="container nav">
     <a href="index.html" class="nav-logo">
       <img src="logo.png" alt="團隊 Logo">
-      <span class="nav-logo-text">妖世</span>
+      <span class="nav-logo-text">妖契者</span>
     </a>
     <button class="nav-toggle" aria-label="開啟選單" aria-expanded="false" id="navToggle">☰</button>
     <nav class="nav-links" id="navLinks">
@@ -28,15 +28,15 @@
   <div class="container">
     <span class="section-num">ABOUT &amp; CONTACT</span>
     <h1>關於我們／聯絡我們</h1>
-    <p>這裡將放上團隊理念、成立故事，以及合作洽詢的聯絡方式。</p>
+    <p id="aboutPageIntro">這裡將放上團隊理念、成立故事，以及合作洽詢的聯絡方式。</p>
   </div>
 </div>
 
 <section>
   <div class="container">
     <div class="placeholder-block">
-      <strong>關於我們／聯絡我們建置中</strong>
-      待確認團隊介紹文案與聯絡方式（表單或信箱）後，將在此區塊補上完整內容。
+      <strong id="aboutPagePlaceholderTitle">關於我們／聯絡我們建置中</strong>
+      <span id="aboutPagePlaceholderText">待確認團隊介紹文案與聯絡方式（表單或信箱）後，將在此區塊補上完整內容。</span>
     </div>
   </div>
 </section>
@@ -46,16 +46,16 @@
     <div class="footer-top">
       <div class="footer-brand">
         <img src="logo.png" alt="團隊 Logo">
-        妖世
+        妖契者
       </div>
       <div class="footer-social">
-        <a href="#" aria-label="YouTube">YT</a>
-        <a href="#" aria-label="X / Twitter">X</a>
-        <a href="#" aria-label="Discord">DC</a>
+        <a href="#" id="socialYoutube" aria-label="YouTube">YT</a>
+        <a href="#" id="socialTwitter" aria-label="X / Twitter">X</a>
+        <a href="#" id="socialDiscord" aria-label="Discord">DC</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 妖世 VTuber Team. All rights reserved.</span>
+      <span id="footerCopyright">© 2026 妖契者 VTuber Team. All rights reserved.</span>
       <a href="about.html">合作洽詢</a>
     </div>
   </div>
@@ -68,6 +68,25 @@
     const open = navLinks.classList.toggle('open');
     navToggle.setAttribute('aria-expanded', open);
   });
+
+  fetch('content.json')
+    .then(res => res.json())
+    .then(data => {
+      if (data.aboutPage) {
+        if (data.aboutPage.intro) document.getElementById('aboutPageIntro').textContent = data.aboutPage.intro;
+        if (data.aboutPage.placeholderTitle) document.getElementById('aboutPagePlaceholderTitle').textContent = data.aboutPage.placeholderTitle;
+        if (data.aboutPage.placeholderText) document.getElementById('aboutPagePlaceholderText').textContent = data.aboutPage.placeholderText;
+      }
+      if (data.site) {
+        if (data.site.footerCopyright) document.getElementById('footerCopyright').textContent = data.site.footerCopyright;
+        if (data.site.social) {
+          if (data.site.social.youtube) document.getElementById('socialYoutube').href = data.site.social.youtube;
+          if (data.site.social.twitter) document.getElementById('socialTwitter').href = data.site.social.twitter;
+          if (data.site.social.discord) document.getElementById('socialDiscord').href = data.site.social.discord;
+        }
+      }
+    })
+    .catch(() => {});
 </script>
 </body>
 </html>

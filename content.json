@@ -1,0 +1,57 @@
+{
+  "site": {
+    "footerCopyright": "© 2026 妖契者 VTuber Team. All rights reserved.",
+    "social": {
+      "youtube": "#",
+      "twitter": "#",
+      "discord": "#"
+    }
+  },
+  "home": {
+    "heroTitle": "在螢幕上，我們一起發光",
+    "members": [
+      {
+        "name": "白幽海BUY",
+        "role": "代表動物：狐狸",
+        "desc": "一句話自我介紹放在這裡，之後可替換成正式文案。",
+        "channelUrl": "#"
+      },
+      {
+        "name": "成員名稱 02",
+        "role": "代表動物：柴犬",
+        "desc": "一句話自我介紹放在這裡，之後可替換成正式文案。",
+        "channelUrl": "#"
+      },
+      {
+        "name": "成員名稱 03",
+        "role": "代表動物：貓頭鷹",
+        "desc": "一句話自我介紹放在這裡，之後可替換成正式文案。",
+        "channelUrl": "#"
+      },
+      {
+        "name": "成員名稱 04",
+        "role": "代表動物：水獺",
+        "desc": "一句話自我介紹放在這裡，之後可替換成正式文案。",
+        "channelUrl": "#"
+      }
+    ],
+    "aboutText": "妖契者是一群朋友一起發起的計畫，目前大家都還是訂閱數不到 200 的個人 YouTuber，從企劃、人設到內容都由成員親自參與。我們正朝著成為 VTuber 團隊的方向前進，希望能和大家一起慢慢累積。",
+    "stats": {
+      "foundedYear": "2026",
+      "memberCount": "4"
+    }
+  },
+  "membersPage": {
+    "intro": "這裡將放上每位成員的完整介紹：立繪、人設、專長與社群連結。",
+    "placeholderTitle": "成員介紹內容建置中",
+    "placeholderText": "待確認每位成員的詳細資料（立繪圖片連結、人設文案、社群連結）後，將在此區塊放上完整的成員卡片列表。"
+  },
+  "aboutPage": {
+    "intro": "這裡將放上團隊理念、成立故事，以及合作洽詢的聯絡方式。",
+    "placeholderTitle": "關於我們／聯絡我們建置中",
+    "placeholderText": "待確認團隊介紹文案與聯絡方式（表單或信箱）後，將在此區塊補上完整內容。"
+  },
+  "videosPage": {
+    "intro": "這裡將放上完整的影片與直播回顧列表，可依歌回、雜談、遊戲實況分類瀏覽。"
+  }
+}

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>影片精選 | 妖世</title>
+<title>影片精選 | 妖契者</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,7 +12,7 @@
   <div class="container nav">
     <a href="index.html" class="nav-logo">
       <img src="logo.png" alt="團隊 Logo">
-      <span class="nav-logo-text">妖世</span>
+      <span class="nav-logo-text">妖契者</span>
     </a>
     <button class="nav-toggle" aria-label="開啟選單" aria-expanded="false" id="navToggle">☰</button>
     <nav class="nav-links" id="navLinks">
@@ -28,7 +28,7 @@
   <div class="container">
     <span class="section-num">VIDEOS</span>
     <h1>影片精選</h1>
-    <p>這裡將放上完整的影片與直播回顧列表，可依歌回、雜談、遊戲實況分類瀏覽。</p>
+    <p id="videosIntro">這裡將放上完整的影片與直播回顧列表，可依歌回、雜談、遊戲實況分類瀏覽。</p>
   </div>
 </div>
 
@@ -40,16 +40,18 @@
     </div>
 
     <div class="tab-panel active" id="tab-clips">
-      <div class="placeholder-block">
-        <strong>影片內容建置中</strong>
-        待確認剪輯／精華影片的分類方式與 YouTube 連結後，將在此放上完整的影片縮圖列表。
+      <div class="video-row" id="clips-grid" style="display:none;"></div>
+      <div class="placeholder-block" id="clips-empty">
+        <strong>還沒有抓到影片資料</strong>
+        請確認 <code>channels.json</code> 已填入正確頻道 ID，並確認 GitHub Actions 已成功執行過一次。
       </div>
     </div>
 
     <div class="tab-panel" id="tab-streams">
-      <div class="placeholder-block">
-        <strong>直播回放建置中</strong>
-        待確認直播回放的分類方式與連結後，將在此放上完整的直播回放列表。
+      <div class="video-row" id="streams-grid" style="display:none;"></div>
+      <div class="placeholder-block" id="streams-empty">
+        <strong>還沒有抓到直播回放資料</strong>
+        請確認 <code>channels.json</code> 已填入正確頻道 ID，並確認 GitHub Actions 已成功執行過一次。
       </div>
     </div>
   </div>
@@ -60,16 +62,16 @@
     <div class="footer-top">
       <div class="footer-brand">
         <img src="logo.png" alt="團隊 Logo">
-        妖世
+        妖契者
       </div>
       <div class="footer-social">
-        <a href="#" aria-label="YouTube">YT</a>
-        <a href="#" aria-label="X / Twitter">X</a>
-        <a href="#" aria-label="Discord">DC</a>
+        <a href="#" id="socialYoutube" aria-label="YouTube">YT</a>
+        <a href="#" id="socialTwitter" aria-label="X / Twitter">X</a>
+        <a href="#" id="socialDiscord" aria-label="Discord">DC</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 妖世 VTuber Team. All rights reserved.</span>
+      <span id="footerCopyright">© 2026 妖契者 VTuber Team. All rights reserved.</span>
       <a href="about.html">合作洽詢</a>
     </div>
   </div>
@@ -97,6 +99,61 @@
       tabPanels[btn.dataset.tab].classList.add('active');
     });
   });
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  function renderList(list, gridEl, emptyEl) {
+    if (!list || list.length === 0) {
+      emptyEl.style.display = 'block';
+      gridEl.style.display = 'none';
+      return;
+    }
+    emptyEl.style.display = 'none';
+    gridEl.style.display = 'grid';
+    gridEl.innerHTML = list.map(v => `
+      <a class="video-card" href="${v.url}" target="_blank" rel="noopener" style="display:block;">
+        <div class="video-thumb">
+          <img src="${v.thumbnail}" alt="${v.title}">
+          <div class="video-thumb-play"><span>▶</span></div>
+        </div>
+        <div class="video-meta">
+          <div class="video-title">${v.title}</div>
+          <div class="video-sub">${v.channel} ・ ${formatDate(v.publishedAt)}</div>
+        </div>
+      </a>
+    `).join('');
+  }
+
+  fetch('videos.json')
+    .then(res => res.json())
+    .then(data => {
+      renderList(data.videos, document.getElementById('clips-grid'), document.getElementById('clips-empty'));
+      renderList(data.streams, document.getElementById('streams-grid'), document.getElementById('streams-empty'));
+    })
+    .catch(() => {
+      // videos.json 讀取失敗時，維持原本的提示文字
+    });
+
+  fetch('content.json')
+    .then(res => res.json())
+    .then(data => {
+      if (data.videosPage && data.videosPage.intro) {
+        document.getElementById('videosIntro').textContent = data.videosPage.intro;
+      }
+      if (data.site) {
+        if (data.site.footerCopyright) document.getElementById('footerCopyright').textContent = data.site.footerCopyright;
+        if (data.site.social) {
+          if (data.site.social.youtube) document.getElementById('socialYoutube').href = data.site.social.youtube;
+          if (data.site.social.twitter) document.getElementById('socialTwitter').href = data.site.social.twitter;
+          if (data.site.social.discord) document.getElementById('socialDiscord').href = data.site.social.discord;
+        }
+      }
+    })
+    .catch(() => {});
 </script>
 </body>
 </html>
