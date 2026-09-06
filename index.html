@@ -6,14 +6,20 @@
 <title>妖契者 | VTuber 團隊</title>
 <link rel="stylesheet" href="style.css">
 <style>
-  /* 1. 增強認識成員按鈕的邊框明顯度 */
+  /* 1. 認識成員按鈕：邊框明顯且懸停/點擊時絕對不變藍色 */
   .btn-outline {
     border: 2px solid rgba(255, 255, 255, 0.8) !important;
+    color: #ffffff !important;
     font-weight: 600;
+    text-decoration: none;
   }
-  .btn-outline:hover {
+  .btn-outline:hover,
+  .btn-outline:focus,
+  .btn-outline:active {
     border-color: #ffffff !important;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff !important;
+    outline: none;
   }
 
   /* 2. 隱藏後台入口（頁尾 Logo）：保持一般滑鼠指標，不顯示手掌 */
@@ -21,7 +27,7 @@
     cursor: default !important;
   }
 
-  /* 3. 團隊合照專屬樣式：保持矩形卡片視覺，避免受頭像圓角影響 */
+  /* 3. 團隊合照專屬樣式：矩形大圖，不使用圓形頭像框 */
   .about-photo {
     width: 100%;
     aspect-ratio: 16 / 9;
