@@ -30,7 +30,7 @@
   <img src="banner.jpg" alt="團隊橫幅">
   <div class="hero-overlay">
     <div class="hero-overlay-inner">
-      <h1 class="hero-title" id="heroTitle">在螢幕上，我們一起發光</h1>
+      <h1 class="hero-title" id="c-heroTitle">在螢幕上，我們一起發光</h1>
       <div class="hero-actions">
         <a href="videos.html" class="btn btn-primary">查看最新影片</a>
         <a href="members.html" class="btn btn-outline">認識成員</a>
@@ -49,8 +49,7 @@
       </div>
       <a href="members.html" class="section-link">查看完整成員介紹</a>
     </div>
-    <div class="member-grid" id="home-member-grid" style="display:none;"></div>
-    <div class="member-grid" id="home-member-fallback">
+    <div class="member-grid" id="c-member-grid">
       <div class="member-card">
         <div class="member-photo">
           <img src="member-01.jpg" alt="成員照片">
@@ -152,10 +151,10 @@
     <div>
       <span class="section-num">ABOUT</span>
       <h2>我們是誰</h2>
-      <p id="aboutText">妖契者是一群朋友一起發起的計畫，目前大家都還是訂閱數不到 200 的個人 YouTuber，從企劃、人設到內容都由成員親自參與。我們正朝著成為 VTuber 團隊的方向前進，希望能和大家一起慢慢累積。</p>
+      <p id="c-aboutText">妖契者是一群朋友一起發起的計畫，目前大家都還是訂閱數不到 200 的個人 YouTuber，從企劃、人設到內容都由成員親自參與。我們正朝著成為 VTuber 團隊的方向前進，希望能和大家一起慢慢累積。</p>
       <div class="stat-line">
-        <div class="stat-item"><span>成立年分</span><strong id="statFoundedYear">2026</strong></div>
-        <div class="stat-item"><span>成員數量</span><strong id="statMemberCount">4</strong></div>
+        <div class="stat-item"><span>成立年分</span><strong id="c-foundedYear">2026</strong></div>
+        <div class="stat-item"><span>成員數量</span><strong id="c-memberCount">4</strong></div>
       </div>
     </div>
     <div class="member-photo" style="aspect-ratio: 4/3; border: 1px solid var(--line);">
@@ -168,18 +167,18 @@
 <footer class="site-footer">
   <div class="container">
     <div class="footer-top">
-      <div class="footer-brand" id="footerLogo" style="cursor:default;">
-        <img src="logo.png" alt="團隊 Logo">
+      <div class="footer-brand">
+        <img src="logo.png" alt="團隊 Logo" id="footerLogo" style="cursor:pointer;">
         妖契者
       </div>
       <div class="footer-social">
-        <a href="#" id="socialYoutube" aria-label="YouTube">YT</a>
-        <a href="#" id="socialTwitter" aria-label="X / Twitter">X</a>
-        <a href="#" id="socialDiscord" aria-label="Discord">DC</a>
+        <a href="#" aria-label="YouTube" id="c-social-youtube">YT</a>
+        <a href="#" aria-label="X / Twitter" id="c-social-twitter">X</a>
+        <a href="#" aria-label="Discord" id="c-social-discord">DC</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <span id="footerCopyright">© 2026 妖契者 VTuber Team. All rights reserved.</span>
+      <span id="c-footerCopyright">© 2026 妖契者 VTuber Team. All rights reserved.</span>
       <a href="about.html">合作洽詢</a>
     </div>
   </div>
@@ -192,6 +191,22 @@
     const open = navLinks.classList.toggle('open');
     navToggle.setAttribute('aria-expanded', open);
   });
+
+  // ---------- 隱藏後台入口：頁尾 Logo 連點 5 下（3 秒內）進入 admin.html ----------
+  (function () {
+    const footerLogo = document.getElementById('footerLogo');
+    let clickCount = 0;
+    let resetTimer = null;
+    footerLogo.addEventListener('click', () => {
+      clickCount += 1;
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => { clickCount = 0; }, 3000);
+      if (clickCount >= 5) {
+        clickCount = 0;
+        window.location.href = 'admin.html';
+      }
+    });
+  })();
 
   function formatDate(iso) {
     if (!iso) return '';
@@ -227,20 +242,24 @@
       // 讀取失敗時維持原本的示範內容
     });
 
-  // ============ 讀取 content.json 並套用文字內容（後台可編輯）============
   fetch('content.json')
     .then(res => res.json())
     .then(data => {
-      if (data.home && data.home.heroTitle) {
-        document.getElementById('heroTitle').textContent = data.home.heroTitle;
+      const home = data.home || {};
+      const site = data.site || {};
+
+      if (home.heroTitle) document.getElementById('c-heroTitle').textContent = home.heroTitle;
+      if (home.aboutText) document.getElementById('c-aboutText').textContent = home.aboutText;
+      if (home.stats) {
+        if (home.stats.foundedYear) document.getElementById('c-foundedYear').textContent = home.stats.foundedYear;
+        if (home.stats.memberCount) document.getElementById('c-memberCount').textContent = home.stats.memberCount;
       }
-      if (data.home && Array.isArray(data.home.members) && data.home.members.length > 0) {
-        const grid = document.getElementById('home-member-grid');
-        const fallback = document.getElementById('home-member-fallback');
-        grid.innerHTML = data.home.members.map((m, i) => `
+      if (Array.isArray(home.members) && home.members.length > 0) {
+        const memberGrid = document.getElementById('c-member-grid');
+        memberGrid.innerHTML = home.members.map((m, i) => `
           <div class="member-card">
             <div class="member-photo">
-              <img src="member-0${i + 1}.jpg" alt="成員照片">
+              <img src="member-${String(i + 1).padStart(2, '0')}.jpg" alt="成員照片">
             </div>
             <div class="member-info">
               <div class="member-name">${m.name || ''}</div>
@@ -250,44 +269,17 @@
             </div>
           </div>
         `).join('');
-        grid.style.display = 'grid';
-        fallback.style.display = 'none';
       }
-      if (data.home && data.home.aboutText) {
-        document.getElementById('aboutText').textContent = data.home.aboutText;
+      if (site.social) {
+        if (site.social.youtube) document.getElementById('c-social-youtube').href = site.social.youtube;
+        if (site.social.twitter) document.getElementById('c-social-twitter').href = site.social.twitter;
+        if (site.social.discord) document.getElementById('c-social-discord').href = site.social.discord;
       }
-      if (data.home && data.home.stats) {
-        if (data.home.stats.foundedYear) document.getElementById('statFoundedYear').textContent = data.home.stats.foundedYear;
-        if (data.home.stats.memberCount) document.getElementById('statMemberCount').textContent = data.home.stats.memberCount;
-      }
-      if (data.site) {
-        if (data.site.footerCopyright) document.getElementById('footerCopyright').textContent = data.site.footerCopyright;
-        if (data.site.social) {
-          if (data.site.social.youtube) document.getElementById('socialYoutube').href = data.site.social.youtube;
-          if (data.site.social.twitter) document.getElementById('socialTwitter').href = data.site.social.twitter;
-          if (data.site.social.discord) document.getElementById('socialDiscord').href = data.site.social.discord;
-        }
-      }
+      if (site.footerCopyright) document.getElementById('c-footerCopyright').textContent = site.footerCopyright;
     })
     .catch(() => {
-      // content.json 讀取失敗時，維持頁面上原本的預設文字
+      // content.json 讀取失敗時，維持頁面上原本寫死的文字，網站仍可正常瀏覽
     });
-
-  // ============ 隱藏後台入口：連續點擊頁尾團隊 Logo 5 下 ============
-  (function () {
-    const logo = document.getElementById('footerLogo');
-    let clickCount = 0;
-    let resetTimer = null;
-    logo.addEventListener('click', () => {
-      clickCount += 1;
-      clearTimeout(resetTimer);
-      resetTimer = setTimeout(() => { clickCount = 0; }, 2000);
-      if (clickCount >= 5) {
-        clickCount = 0;
-        window.location.href = 'admin.html';
-      }
-    });
-  })();
 </script>
 </body>
 </html>

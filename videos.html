@@ -28,7 +28,7 @@
   <div class="container">
     <span class="section-num">VIDEOS</span>
     <h1>影片精選</h1>
-    <p id="videosIntro">這裡將放上完整的影片與直播回顧列表，可依歌回、雜談、遊戲實況分類瀏覽。</p>
+    <p id="c-videosIntro">這裡將放上完整的影片與直播回顧列表，可依歌回、雜談、遊戲實況分類瀏覽。</p>
   </div>
 </div>
 
@@ -65,13 +65,13 @@
         妖契者
       </div>
       <div class="footer-social">
-        <a href="#" id="socialYoutube" aria-label="YouTube">YT</a>
-        <a href="#" id="socialTwitter" aria-label="X / Twitter">X</a>
-        <a href="#" id="socialDiscord" aria-label="Discord">DC</a>
+        <a href="#" aria-label="YouTube" id="c-social-youtube">YT</a>
+        <a href="#" aria-label="X / Twitter" id="c-social-twitter">X</a>
+        <a href="#" aria-label="Discord" id="c-social-discord">DC</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <span id="footerCopyright">© 2026 妖契者 VTuber Team. All rights reserved.</span>
+      <span id="c-footerCopyright">© 2026 妖契者 VTuber Team. All rights reserved.</span>
       <a href="about.html">合作洽詢</a>
     </div>
   </div>
@@ -141,17 +141,15 @@
   fetch('content.json')
     .then(res => res.json())
     .then(data => {
-      if (data.videosPage && data.videosPage.intro) {
-        document.getElementById('videosIntro').textContent = data.videosPage.intro;
+      const page = data.videosPage || {};
+      const site = data.site || {};
+      if (page.intro) document.getElementById('c-videosIntro').textContent = page.intro;
+      if (site.social) {
+        if (site.social.youtube) document.getElementById('c-social-youtube').href = site.social.youtube;
+        if (site.social.twitter) document.getElementById('c-social-twitter').href = site.social.twitter;
+        if (site.social.discord) document.getElementById('c-social-discord').href = site.social.discord;
       }
-      if (data.site) {
-        if (data.site.footerCopyright) document.getElementById('footerCopyright').textContent = data.site.footerCopyright;
-        if (data.site.social) {
-          if (data.site.social.youtube) document.getElementById('socialYoutube').href = data.site.social.youtube;
-          if (data.site.social.twitter) document.getElementById('socialTwitter').href = data.site.social.twitter;
-          if (data.site.social.discord) document.getElementById('socialDiscord').href = data.site.social.discord;
-        }
-      }
+      if (site.footerCopyright) document.getElementById('c-footerCopyright').textContent = site.footerCopyright;
     })
     .catch(() => {});
 </script>
