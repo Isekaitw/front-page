@@ -553,6 +553,37 @@ section:last-of-type { border-bottom: none; }
 }
 .footer-bottom a:hover { color: var(--cyan-bright); }
 
+/* ===================== 分頁切換（影片／直播）===================== */
+.tab-switch {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  margin-bottom: 36px;
+}
+
+.tab-btn {
+  padding: 10px 22px;
+  border: none;
+  background: transparent;
+  color: var(--text-mid);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: var(--cyan);
+  color: #06171a;
+  font-weight: 500;
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
 /* ===================== 內頁通用（框架頁）===================== */
 .page-hero {
   padding: 64px 0 40px;

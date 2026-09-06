@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>影片精選 | 星軌計畫 STARPATH</title>
+<title>影片精選 | 妖世</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,10 +12,11 @@
   <div class="container nav">
     <a href="index.html" class="nav-logo">
       <img src="https://placehold.co/80x80/121821/35d6e0?text=LOGO" alt="團隊 Logo">
-      <span class="nav-logo-text">星軌計畫 STARPATH</span>
+      <span class="nav-logo-text">妖世</span>
     </a>
     <button class="nav-toggle" aria-label="開啟選單" aria-expanded="false" id="navToggle">☰</button>
     <nav class="nav-links" id="navLinks">
+      <a href="index.html">首頁</a>
       <a href="members.html">成員介紹</a>
       <a href="schedule.html">直播行程</a>
       <a href="videos.html" class="active">影片精選</a>
@@ -34,9 +35,23 @@
 
 <section>
   <div class="container">
-    <div class="placeholder-block">
-      <strong>影片精選建置中</strong>
-      待確認影片分類方式與 YouTube 連結後，將在此區塊放上完整的影片縮圖列表。
+    <div class="tab-switch" role="tablist">
+      <button class="tab-btn active" role="tab" aria-selected="true" data-tab="clips">影片</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="streams">直播</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-clips">
+      <div class="placeholder-block">
+        <strong>影片內容建置中</strong>
+        待確認剪輯／精華影片的分類方式與 YouTube 連結後，將在此放上完整的影片縮圖列表。
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-streams">
+      <div class="placeholder-block">
+        <strong>直播回放建置中</strong>
+        待確認直播回放的分類方式與連結後，將在此放上完整的直播回放列表。
+      </div>
     </div>
   </div>
 </section>
@@ -46,7 +61,7 @@
     <div class="footer-top">
       <div class="footer-brand">
         <img src="https://placehold.co/80x80/121821/35d6e0?text=LOGO" alt="團隊 Logo">
-        星軌計畫 STARPATH
+        妖世
       </div>
       <div class="footer-social">
         <a href="#" aria-label="YouTube">YT</a>
@@ -55,7 +70,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 STARPATH VTuber Team. All rights reserved.</span>
+      <span>© 2026 妖世 VTuber Team. All rights reserved.</span>
       <a href="about.html">合作洽詢</a>
     </div>
   </div>
@@ -67,6 +82,21 @@
   navToggle.addEventListener('click', () => {
     const open = navLinks.classList.toggle('open');
     navToggle.setAttribute('aria-expanded', open);
+  });
+
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const tabPanels = {
+    clips: document.getElementById('tab-clips'),
+    streams: document.getElementById('tab-streams')
+  };
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabButtons.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+      Object.values(tabPanels).forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      tabPanels[btn.dataset.tab].classList.add('active');
+    });
   });
 </script>
 </body>
