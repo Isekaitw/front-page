@@ -1,6 +1,6 @@
-# STARPATH VTuber Team Site
+# 妖世 VTuber Team Site
 
-星軌計畫 VTuber 團隊官方網站。純靜態網站，使用 GitHub Pages 免費託管。
+妖世 VTuber 團隊官方網站。純靜態網站，使用 GitHub Pages 免費託管。
 
 ## 手機版部署步驟（不用打指令）
 
@@ -13,7 +13,7 @@
    - 點 **Create repository**
 4. 進入剛建立的空 repository，點 **uploading an existing file** 這行藍字（或 **Add file → Upload files**）
 5. 點 **choose your files**，把解壓縮出來的檔案「全部選取」一次上傳：
-   `index.html、members.html、schedule.html、videos.html、about.html、style.css、README.md、PROJECT_PLAN.md`
+   `index.html、members.html、videos.html、about.html、style.css、README.md、PROJECT_PLAN.md`
    （這些檔案現在都放在同一層，不用建資料夾，手機上傳不會出錯）
 6. 下方 Commit 訊息隨意打（例如「上傳網站」），點綠色 **Commit changes**
 7. 上傳完成後，點上方 **Settings** → 左側選單 **Pages**
@@ -32,7 +32,7 @@
 
 詳見 `PROJECT_PLAN.md` 的「後續擴充建議」與「待辦清單」章節，包括：
 - 替換 Logo／橫幅圖片連結
-- 補齊成員介紹、直播行程、影片精選、關於我們頁內容
+- 補齊成員介紹、影片精選、關於我們頁內容
 - （選用）串接 Formspree 聯絡表單
 - （選用）綁定自訂網域
 
@@ -42,7 +42,6 @@
 vtuber-site/
 ├── index.html
 ├── members.html
-├── schedule.html
 ├── videos.html
 ├── about.html
 ├── style.css

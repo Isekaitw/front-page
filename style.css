@@ -90,6 +90,10 @@ a:focus-visible, button:focus-visible {
   border-bottom: 1px solid var(--line);
 }
 
+.site-header .container {
+  padding: 0 16px;
+}
+
 .nav {
   display: flex;
   align-items: center;
@@ -303,7 +307,7 @@ section:last-of-type { border-bottom: none; }
 
 .section-num {
   font-family: var(--font-display);
-  color: var(--cyan-dim);
+  color: var(--cyan-bright);
   font-size: 0.9rem;
   margin-bottom: 8px;
   display: block;
@@ -370,7 +374,7 @@ section:last-of-type { border-bottom: none; }
 }
 
 .member-role {
-  color: var(--cyan-dim);
+  color: var(--cyan-bright);
   font-size: 0.82rem;
   margin-top: 4px;
 }
