@@ -5,6 +5,37 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>妖契者 | VTuber 團隊</title>
 <link rel="stylesheet" href="style.css">
+<style>
+  /* 1. 增強認識成員按鈕的邊框明顯度 */
+  .btn-outline {
+    border: 2px solid rgba(255, 255, 255, 0.8) !important;
+    font-weight: 600;
+  }
+  .btn-outline:hover {
+    border-color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  /* 2. 隱藏後台入口（頁尾 Logo）：保持一般滑鼠指標，不顯示手掌 */
+  #footerLogo {
+    cursor: default !important;
+  }
+
+  /* 3. 團隊合照專屬樣式：保持矩形卡片視覺，避免受頭像圓角影響 */
+  .about-photo {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--line, rgba(255, 255, 255, 0.1));
+  }
+  .about-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+</style>
 </head>
 <body>
 
@@ -157,7 +188,7 @@
         <div class="stat-item"><span>成員數量</span><strong id="c-memberCount">4</strong></div>
       </div>
     </div>
-    <div class="member-photo" style="aspect-ratio: 4/3; border: 1px solid var(--line);">
+    <div class="about-photo">
       <img src="team-photo.jpg" alt="團隊合照">
     </div>
   </div>
@@ -168,7 +199,7 @@
   <div class="container">
     <div class="footer-top">
       <div class="footer-brand">
-        <img src="logo.png" alt="團隊 Logo" id="footerLogo" style="cursor:pointer;">
+        <img src="logo.png" alt="團隊 Logo" id="footerLogo">
         妖契者
       </div>
       <div class="footer-social">
