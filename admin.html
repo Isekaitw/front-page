@@ -6,6 +6,101 @@
 <meta name="robots" content="noindex, nofollow">
 <title>後台編輯 | 妖契者</title>
 <link rel="stylesheet" href="style.css">
+<style>
+  /* ===================== 登入頁面置中與卡片排版增強 ===================== */
+  #loginView {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: var(--bg-main, #0f0f12); /* 若無變數則自動降級使用深色底 */
+  }
+
+  .admin-login-wrap {
+    width: 100%;
+    max-width: 420px;
+    padding: 40px 32px;
+    background: var(--bg-elevated, #1a1a20);
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    box-sizing: border-box;
+  }
+
+  .admin-login-wrap h1 {
+    margin: 0 0 8px 0;
+    font-size: 1.75rem;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .admin-sub {
+    text-align: center;
+    margin-bottom: 24px;
+    color: var(--text-low, #8e8e93);
+    font-size: 0.95rem;
+  }
+
+  .admin-field {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .admin-field label {
+    font-size: 0.9rem;
+    color: var(--text-medium, #cccccc);
+  }
+
+  .admin-field input[type="password"] {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color, #33333e);
+    background: var(--input-bg, #09090b);
+    color: inherit;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .admin-field input[type="password"]:focus {
+    border-color: var(--primary-color, #6366f1);
+  }
+
+  .admin-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--text-low, #8e8e93);
+    margin-bottom: 24px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .admin-check input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+  }
+
+  .admin-status {
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 0.875rem;
+    margin-bottom: 20px;
+    display: none;
+  }
+
+  .admin-status.show {
+    display: block;
+  }
+</style>
 </head>
 <body>
 
@@ -13,25 +108,24 @@
 
   <!-- ===================== 登入畫面 ===================== -->
   <div id="loginView">
-    <div class="container">
-      <div class="admin-login-wrap">
-        <h1>後台登入</h1>
-        <p class="admin-sub" id="loginSub">請輸入個人設定之密碼</p>
+    <div class="admin-login-wrap">
+      <h1>後台登入</h1>
+      <p class="admin-sub" id="loginSub">請輸入個人設定之密碼</p>
 
-        <div class="admin-status" id="loginStatus"></div>
+      <div class="admin-status" id="loginStatus"></div>
 
-        <div id="loginForm">
-          <div class="admin-field">
-            <label for="inPassword">密碼</label>
-            <input type="password" id="inPassword" autocomplete="current-password">
-          </div>
-          <label class="admin-check">
-            <input type="checkbox" id="inRemember" checked>
-            記住密碼（請勿於公用電腦勾選）
-          </label>
-
-          <button class="btn btn-primary" id="loginBtn" style="width:100%; justify-content:center;">登入</button>
+      <div id="loginForm">
+        <div class="admin-field">
+          <label for="inPassword">密碼</label>
+          <input type="password" id="inPassword" autocomplete="current-password" placeholder="請輸入密碼">
         </div>
+        
+        <label class="admin-check">
+          <input type="checkbox" id="inRemember" checked>
+          記住密碼（請勿於公用電腦勾選）
+        </label>
+
+        <button class="btn btn-primary" id="loginBtn" style="width:100%; justify-content:center; padding: 12px 0; font-size: 1rem;">登入</button>
       </div>
     </div>
   </div>
@@ -209,13 +303,11 @@
 
 <script>
 (function () {
-  // 部署好 Cloudflare Worker 之後，把下面這行換成你自己的 Worker 網址
-  // （例如 https://vtuber-admin.你的帳號.workers.dev），記得結尾不要加斜線
   const WORKER_URL = 'https://REPLACE-ME.workers.dev';
 
-  let password = null;      // 目前這次登入用的密碼（只存在記憶體，登出就清掉）
-  let contentSha = null;    // sha of content.json on GitHub
-  let channelsSha = null;   // sha of channels.json on GitHub
+  let password = null;
+  let contentSha = null;
+  let channelsSha = null;
 
   const loginView = document.getElementById('loginView');
   const editorView = document.getElementById('editorView');
@@ -247,7 +339,7 @@
       err.status = res.status;
       throw err;
     }
-    return data; // { json, sha }
+    return data;
   }
 
   async function apiPutFile(path, obj, sha, message) {
@@ -271,22 +363,18 @@
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      // Worker 在密碼錯誤（401）或帳號鎖定中（423）時都會回傳 data.error，
-      // 優先顯示這個訊息（包含鎖定倒數時間），其餘狀況才用通用訊息
       if (data.error) throw new Error(data.error);
       throw new Error('驗證失敗（' + res.status + '），請確認 Worker 網址是否設定正確。');
     }
     return data.name || '';
   }
 
-  // ---------- 登入（密碼記在這台裝置就好，不用管 Token）----------
   const PASSWORD_KEY = 'vtuber_admin_password';
 
   function getSavedPassword() {
     return localStorage.getItem(PASSWORD_KEY);
   }
 
-  // 登入
   async function tryLogin(candidatePassword, remember) {
     showStatus(loginStatus, '登入中…', 'info');
     try {
@@ -322,7 +410,7 @@
   document.getElementById('logoutBtn').addEventListener('click', () => {
     password = null;
     editorView.style.display = 'none';
-    loginView.style.display = 'block';
+    loginView.style.display = 'flex';
     document.getElementById('inPassword').value = '';
     document.getElementById('editorNameLabel').textContent = '';
     hideStatus(loginStatus);
@@ -334,7 +422,6 @@
     }
   });
 
-  // ---------- 進入編輯畫面 ----------
   let contentData = null;
   let channelsData = null;
 
@@ -358,7 +445,6 @@
     }
   }
 
-  // ---------- 分頁切換 ----------
   document.querySelectorAll('.admin-tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
@@ -368,7 +454,6 @@
     });
   });
 
-  // ---------- 表單填入 ----------
   function fillForm() {
     document.getElementById('f_heroTitle').value = contentData.home?.heroTitle || '';
     document.getElementById('f_aboutText').value = contentData.home?.aboutText || '';
@@ -394,7 +479,6 @@
     renderChannelEditors(channelsData.channels || []);
   }
 
-  // ---------- 成員預覽卡片（重複區塊）----------
   function renderMemberEditors(members) {
     const wrap = document.getElementById('memberEditorList');
     wrap.innerHTML = members.map((m, i) => `
@@ -429,7 +513,6 @@
     }));
   }
 
-  // ---------- 頻道清單（重複區塊）----------
   function renderChannelEditors(channels) {
     const wrap = document.getElementById('channelEditorList');
     wrap.innerHTML = channels.map((c, i) => `
@@ -467,7 +550,6 @@
     return escapeHtml(str).replace(/"/g, '&quot;');
   }
 
-  // ---------- 儲存 ----------
   document.getElementById('saveBtn').addEventListener('click', async () => {
     showStatus(saveStatus, '儲存中…', 'info');
 
@@ -521,7 +603,6 @@
     }
   });
 
-  // ---------- 初始化：如果這台裝置記過密碼，直接嘗試自動登入 ----------
   const savedPw = getSavedPassword();
   if (savedPw) {
     document.getElementById('inPassword').value = savedPw;
