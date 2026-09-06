@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>關於我們 | 星軌計畫 STARPATH</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav">
+    <a href="index.html" class="nav-logo">
+      <img src="https://placehold.co/80x80/121821/35d6e0?text=LOGO" alt="團隊 Logo">
+      <span class="nav-logo-text">星軌計畫 STARPATH</span>
+    </a>
+    <button class="nav-toggle" aria-label="開啟選單" aria-expanded="false" id="navToggle">☰</button>
+    <nav class="nav-links" id="navLinks">
+      <a href="members.html">成員介紹</a>
+      <a href="schedule.html">直播行程</a>
+      <a href="videos.html">影片精選</a>
+      <a href="about.html" class="active">關於我們／聯絡我們</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-hero">
+  <div class="container">
+    <span class="section-num">ABOUT &amp; CONTACT</span>
+    <h1>關於我們／聯絡我們</h1>
+    <p>這裡將放上團隊理念、成立故事，以及合作洽詢的聯絡方式。</p>
+  </div>
+</div>
+
+<section>
+  <div class="container">
+    <div class="placeholder-block">
+      <strong>關於我們／聯絡我們建置中</strong>
+      待確認團隊介紹文案與聯絡方式（表單或信箱）後，將在此區塊補上完整內容。
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="https://placehold.co/80x80/121821/35d6e0?text=LOGO" alt="團隊 Logo">
+        星軌計畫 STARPATH
+      </div>
+      <div class="footer-social">
+        <a href="#" aria-label="YouTube">YT</a>
+        <a href="#" aria-label="X / Twitter">X</a>
+        <a href="#" aria-label="Discord">DC</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 STARPATH VTuber Team. All rights reserved.</span>
+      <a href="about.html">合作洽詢</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  navToggle.addEventListener('click', () => {
+    const open = navLinks.classList.toggle('open');
+    navToggle.setAttribute('aria-expanded', open);
+  });
+</script>
+</body>
+</html>
