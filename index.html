@@ -41,6 +41,12 @@
     object-fit: cover;
     display: block;
   }
+
+  /* 4. 防止動態文字閃爍專用：資料載入完成前維持平滑渲染 */
+  .dyn-text {
+    min-height: 1em;
+    display: inline-block;
+  }
 </style>
 </head>
 <body>
@@ -67,7 +73,7 @@
   <img src="banner.jpg" alt="團隊橫幅">
   <div class="hero-overlay">
     <div class="hero-overlay-inner">
-      <h1 class="hero-title" id="c-heroTitle">在螢幕上，我們一起發光</h1>
+      <h1 class="hero-title dyn-text" id="c-heroTitle"></h1>
       <div class="hero-actions">
         <a href="videos.html" class="btn btn-primary">查看最新影片</a>
         <a href="members.html" class="btn btn-outline">認識成員</a>
@@ -86,7 +92,7 @@
       </div>
       <a href="members.html" class="section-link">查看完整成員介紹</a>
     </div>
-    <!-- 保持完全空白，交由 JS 直接渲染最新資料，防止文字閃爍 -->
+    <!-- 完全由 JS 動態渲染，無寫死舊卡片 -->
     <div class="member-grid" id="c-member-grid"></div>
   </div>
 </section>
@@ -102,39 +108,8 @@
       </div>
       <a href="videos.html" class="section-link">查看所有影片</a>
     </div>
+    <!-- 預設隱藏，待 JSON 讀取後一次性顯示最新精選影片 -->
     <div class="video-row" id="home-video-grid" style="display:none;"></div>
-    <div class="video-row" id="home-video-fallback">
-      <div class="video-card">
-        <div class="video-thumb">
-          <img src="video-01.jpg" alt="影片縮圖">
-          <div class="video-thumb-play"><span>▶</span></div>
-        </div>
-        <div class="video-meta">
-          <div class="video-title">【歌回】深夜的星空放送</div>
-          <div class="video-sub">白幽海BUY ・ 待更新</div>
-        </div>
-      </div>
-      <div class="video-card">
-        <div class="video-thumb">
-          <img src="video-02.jpg" alt="影片縮圖">
-          <div class="video-thumb-play"><span>▶</span></div>
-        </div>
-        <div class="video-meta">
-          <div class="video-title">【實況】新手挑戰高難度關卡</div>
-          <div class="video-sub">成員名稱 02 ・ 待更新</div>
-        </div>
-      </div>
-      <div class="video-card">
-        <div class="video-thumb">
-          <img src="video-03.jpg" alt="影片縮圖">
-          <div class="video-thumb-play"><span>▶</span></div>
-        </div>
-        <div class="video-meta">
-          <div class="video-title">【雜談】和大家聊聊這個月發生的事</div>
-          <div class="video-sub">成員名稱 03 ・ 待更新</div>
-        </div>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -144,10 +119,10 @@
     <div>
       <span class="section-num">ABOUT</span>
       <h2>我們是誰</h2>
-      <p id="c-aboutText">妖契者是一群朋友一起發起的計畫，目前大家都還是訂閱數不到 200 的個人 YouTuber，從企劃、人設到內容都由成員親自參與。我們正朝著成為 VTuber 團隊的方向前進，希望能和大家一起慢慢累積。</p>
+      <p id="c-aboutText" class="dyn-text"></p>
       <div class="stat-line">
-        <div class="stat-item"><span>成立年分</span><strong id="c-foundedYear">2026</strong></div>
-        <div class="stat-item"><span>成員數量</span><strong id="c-memberCount">4</strong></div>
+        <div class="stat-item"><span>成立年分</span><strong id="c-foundedYear" class="dyn-text"></strong></div>
+        <div class="stat-item"><span>成員數量</span><strong id="c-memberCount" class="dyn-text"></strong></div>
       </div>
     </div>
     <div class="about-photo">
@@ -171,7 +146,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span id="c-footerCopyright">© 2026 妖契者 VTuber Team. All rights reserved.</span>
+      <span id="c-footerCopyright" class="dyn-text"></span>
       <a href="about.html">合作洽詢</a>
     </div>
   </div>
@@ -207,6 +182,7 @@
     return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
   }
 
+  // 1. 讀取精選影片資料（無舊畫面佔位，直接一次繪製）
   fetch('videos.json')
     .then(res => res.json())
     .then(data => {
@@ -215,7 +191,6 @@
         .slice(0, 3);
       if (combined.length === 0) return;
       const grid = document.getElementById('home-video-grid');
-      const fallback = document.getElementById('home-video-fallback');
       grid.innerHTML = combined.map(v => `
         <a class="video-card" href="${v.url}" target="_blank" rel="noopener" style="display:block;">
           <div class="video-thumb">
@@ -229,12 +204,10 @@
         </a>
       `).join('');
       grid.style.display = 'grid';
-      fallback.style.display = 'none';
     })
-    .catch(() => {
-      // 讀取失敗時維持原本的示範內容
-    });
+    .catch(() => {});
 
+  // 2. 讀取頁面文字與成員資料（直接寫入空白容器，絕不閃爍）
   fetch('content.json')
     .then(res => res.json())
     .then(data => {
@@ -247,10 +220,11 @@
         if (home.stats.foundedYear) document.getElementById('c-foundedYear').textContent = home.stats.foundedYear;
         if (home.stats.memberCount) document.getElementById('c-memberCount').textContent = home.stats.memberCount;
       }
+      
+      // 動態繪製成員卡片
       if (Array.isArray(home.members) && home.members.length > 0) {
         const memberGrid = document.getElementById('c-member-grid');
         memberGrid.innerHTML = home.members.map((m, i) => {
-          // 支援從 content.json 設定圖片名稱，預設為 member-01.jpg, member-02.jpg...
           const photoImg = m.photo || `member-${String(i + 1).padStart(2, '0')}.jpg`;
           return `
             <div class="member-card">
@@ -267,6 +241,8 @@
           `;
         }).join('');
       }
+
+      // 社群連結與頁尾版權
       if (site.social) {
         if (site.social.youtube) document.getElementById('c-social-youtube').href = site.social.youtube;
         if (site.social.twitter) document.getElementById('c-social-twitter').href = site.social.twitter;
@@ -274,9 +250,7 @@
       }
       if (site.footerCopyright) document.getElementById('c-footerCopyright').textContent = site.footerCopyright;
     })
-    .catch(() => {
-      // 讀取失敗時靜默處理
-    });
+    .catch(() => {});
 </script>
 </body>
 </html>
