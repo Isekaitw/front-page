@@ -23,8 +23,8 @@
         "channelUrl": "https://www.youtube.com/@%E9%BB%91%E9%BE%8D-k7n"
       },
       {
-        "name": "蛛蛛人",
-        "role": "代表動物：蜘蛛",
+        "name": "幽靈貓",
+        "role": "代表動物：貓咪",
         "desc": "一句話自我介紹放在這裡，之後可替換成正式文案。",
         "channelUrl": "https://www.youtube.com/channel/UCe7OEathxfSlLFN-XtBRW2A"
       },
@@ -32,6 +32,12 @@
         "name": "闇黑.無影",
         "role": "代表動物：？",
         "desc": "一句話自我介紹放在這裡，之後可替換成正式文案。",
+        "channelUrl": "#"
+      },
+      {
+        "name": "蛛蛛人",
+        "role": "代表動物：蜘蛛",
+        "desc": "",
         "channelUrl": "#"
       }
     ],
