@@ -2,23 +2,23 @@
   "channels": [
     {
       "name": "白幽海BUY",
-      "channel_id": "UC替換成這位成員的真實頻道ID"
+      "channel_id": ""
     },
     {
       "name": "無嘯天",
-      "channel_id": "@黑龍-k7n"
+      "channel_id": ""
     },
     {
-      "name": "蛛蛛人",
-      "channel_id": "UC替換成這位成員的真實頻道ID"
-    },
-    {
-      "name": "幽靈貓",
-      "channel_id": "UC替換成這位成員的真實頻道ID"
+      "name": "黑貓",
+      "channel_id": ""
     },
     {
       "name": "闇影",
-      "channel_id": "@來無影去無蹤0_0"
+      "channel_id": ""
+    },
+    {
+      "name": "蛛蛛人",
+      "channel_id": ""
     }
   ]
 }
