@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>後台編輯 | 妖契者</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  /* ===================== 登入頁面置中與卡片排版增強 ===================== */
+  #loginView {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: var(--bg-main, #0f0f12); /* 若無變數則自動降級使用深色底 */
+  }
+
+  .admin-login-wrap {
+    width: 100%;
+    max-width: 420px;
+    padding: 40px 32px;
+    background: var(--bg-elevated, #1a1a20);
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    box-sizing: border-box;
+  }
+
+  .admin-login-wrap h1 {
+    margin: 0 0 8px 0;
+    font-size: 1.75rem;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .admin-sub {
+    text-align: center;
+    margin-bottom: 24px;
+    color: var(--text-low, #8e8e93);
+    font-size: 0.95rem;
+  }
+
+  .admin-field {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .admin-field label {
+    font-size: 0.9rem;
+    color: var(--text-medium, #cccccc);
+  }
+
+  .admin-field input[type="password"] {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color, #33333e);
+    background: var(--input-bg, #09090b);
+    color: inherit;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .admin-field input[type="password"]:focus {
+    border-color: var(--primary-color, #6366f1);
+  }
+
+  .admin-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--text-low, #8e8e93);
+    margin-bottom: 24px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .admin-check input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+  }
+
+  .admin-status {
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 0.875rem;
+    margin-bottom: 20px;
+    display: none;
+  }
+
+  .admin-status.show {
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+<div class="admin-shell">
+
+  <!-- ===================== 登入畫面 ===================== -->
+  <div id="loginView">
+    <div class="admin-login-wrap">
+      <h1>後台登入</h1>
+      <p class="admin-sub" id="loginSub">請輸入個人設定之密碼</p>
+
+      <div class="admin-status" id="loginStatus"></div>
+
+      <div id="loginForm">
+        <div class="admin-field">
+          <label for="inPassword">密碼</label>
+          <input type="password" id="inPassword" autocomplete="current-password" placeholder="請輸入密碼">
+        </div>
+        
+        <label class="admin-check">
+          <input type="checkbox" id="inRemember" checked>
+          記住密碼（請勿於公用電腦勾選）
+        </label>
+
+        <button class="btn btn-primary" id="loginBtn" style="width:100%; justify-content:center; padding: 12px 0; font-size: 1rem;">登入</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 編輯畫面 ===================== -->
+  <div id="editorView" style="display:none;">
+    <div class="admin-topbar">
+      <div class="container">
+        <div class="admin-topbar-brand">
+          <img src="logo.png" alt="Logo" style="height:26px;width:26px;border-radius:6px;">
+          後台編輯
+          <span id="editorNameLabel" style="font-weight:normal; color:var(--text-low); font-size:0.85rem; margin-left:10px;"></span>
+        </div>
+        <div style="display:flex; align-items:center; gap:18px;">
+          <button class="admin-logout" id="reloadBtn">重新載入（放棄未儲存的變更）</button>
+          <button class="admin-logout" id="logoutBtn">登出</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-main">
+      <div class="container">
+
+        <div class="admin-status" id="editorStatus"></div>
+
+        <div class="admin-tabs" id="adminTabs">
+          <button class="admin-tab-btn active" data-tab="home">首頁</button>
+          <button class="admin-tab-btn" data-tab="membersPage">成員介紹頁</button>
+          <button class="admin-tab-btn" data-tab="aboutPage">關於我們頁</button>
+          <button class="admin-tab-btn" data-tab="videosPage">影片精選頁</button>
+          <button class="admin-tab-btn" data-tab="site">社群連結與頁尾</button>
+          <button class="admin-tab-btn" data-tab="channels">YouTube 頻道清單</button>
+        </div>
+
+        <!-- 首頁 -->
+        <div class="admin-panel active" data-panel="home">
+          <div class="admin-card">
+            <h3>橫幅標語</h3>
+            <div class="admin-field">
+              <label for="f_heroTitle">首頁大標題</label>
+              <input type="text" id="f_heroTitle">
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <h3>我們是誰</h3>
+            <div class="admin-field">
+              <label for="f_aboutText">團隊簡介文字</label>
+              <textarea id="f_aboutText"></textarea>
+            </div>
+            <div class="admin-field">
+              <label for="f_foundedYear">成立年分</label>
+              <input type="text" id="f_foundedYear">
+            </div>
+            <div class="admin-field">
+              <label for="f_memberCount">成員數量</label>
+              <input type="text" id="f_memberCount">
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <h3>成員預覽卡片</h3>
+            <p class="admin-card-sub">照片檔名固定對應第 1～N 位為 member-01.jpg、member-02.jpg……，要換照片請直接到 GitHub 上傳同名圖片覆蓋，這裡只能改文字。</p>
+            <div id="memberEditorList"></div>
+            <button class="btn btn-outline" id="addMemberBtn" type="button">＋ 新增一位成員</button>
+          </div>
+        </div>
+
+        <!-- 成員介紹頁 -->
+        <div class="admin-panel" data-panel="membersPage">
+          <div class="admin-card">
+            <h3>成員介紹頁文字</h3>
+            <div class="admin-field">
+              <label for="f_membersIntro">頁面說明文字</label>
+              <textarea id="f_membersIntro"></textarea>
+            </div>
+            <div class="admin-field">
+              <label for="f_membersPlaceholderTitle">建置中提示標題</label>
+              <input type="text" id="f_membersPlaceholderTitle">
+            </div>
+            <div class="admin-field">
+              <label for="f_membersPlaceholderText">建置中提示內文</label>
+              <textarea id="f_membersPlaceholderText"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- 關於我們頁 -->
+        <div class="admin-panel" data-panel="aboutPage">
+          <div class="admin-card">
+            <h3>關於我們／聯絡我們頁文字</h3>
+            <div class="admin-field">
+              <label for="f_aboutIntro">頁面說明文字</label>
+              <textarea id="f_aboutIntro"></textarea>
+            </div>
+            <div class="admin-field">
+              <label for="f_aboutPlaceholderTitle">建置中提示標題</label>
+              <input type="text" id="f_aboutPlaceholderTitle">
+            </div>
+            <div class="admin-field">
+              <label for="f_aboutPlaceholderText">建置中提示內文</label>
+              <textarea id="f_aboutPlaceholderText"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- 影片精選頁 -->
+        <div class="admin-panel" data-panel="videosPage">
+          <div class="admin-card">
+            <h3>影片精選頁文字</h3>
+            <div class="admin-field">
+              <label for="f_videosIntro">頁面說明文字</label>
+              <textarea id="f_videosIntro"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- 社群連結與頁尾 -->
+        <div class="admin-panel" data-panel="site">
+          <div class="admin-card">
+            <h3>社群連結（全站頁尾共用）</h3>
+            <div class="admin-field">
+              <label for="f_socialYoutube">YouTube 連結</label>
+              <input type="url" id="f_socialYoutube" placeholder="https://www.youtube.com/@your_channel">
+            </div>
+            <div class="admin-field">
+              <label for="f_socialTwitter">X（Twitter）連結</label>
+              <input type="url" id="f_socialTwitter" placeholder="https://x.com/your_account">
+            </div>
+            <div class="admin-field">
+              <label for="f_socialDiscord">Discord 連結</label>
+              <input type="url" id="f_socialDiscord" placeholder="https://discord.gg/xxxxxxx">
+            </div>
+          </div>
+          <div class="admin-card">
+            <h3>頁尾版權文字</h3>
+            <div class="admin-field">
+              <label for="f_footerCopyright">版權文字</label>
+              <input type="text" id="f_footerCopyright">
+            </div>
+          </div>
+        </div>
+
+        <!-- YouTube 頻道清單 -->
+        <div class="admin-panel" data-panel="channels">
+          <div class="admin-card">
+            <h3>YouTube 頻道清單（自動抓取影片用）</h3>
+            <p class="admin-card-sub">
+              網站會每 6 小時自動連到下面每個頻道抓最新影片／直播，顯示在「影片精選」頁與首頁。
+              頻道 ID 是 <code>UC</code> 開頭的一串英數字，可以到該頻道「簡介」頁面，或用網址列的
+              <code>youtube.com/channel/UC.......</code> 找到；如果頻道網址是自訂網址（例如 <code>youtube.com/@名稱</code>），
+              可用「檢視網頁原始碼」搜尋 <code>channel_id</code>，或用網路上的「YouTube channel ID finder」工具查詢。
+            </p>
+            <div id="channelEditorList"></div>
+            <button class="btn btn-outline" id="addChannelBtn" type="button">＋ 新增一個頻道</button>
+            <p class="admin-card-sub" style="margin-top:16px;">
+              提醒：自動抓取需要在 GitHub repository 的 <strong>Settings → Secrets and variables → Actions</strong> 設定一組
+              <code>YOUTUBE_API_KEY</code>（YouTube Data API v3 金鑰），這一步無法從後台完成，只需要設定一次。
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="admin-save-bar">
+      <div class="container" style="display:flex; align-items:center; gap:16px;">
+        <div class="admin-status" id="saveStatus"></div>
+        <button class="btn btn-primary" id="saveBtn" style="white-space:nowrap;">儲存所有變更</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  const WORKER_URL = 'https://aged-violet-bc60.eason2011207.workers.dev';
+
+  let password = null;
+  let contentSha = null;
+  let channelsSha = null;
+
+  const loginView = document.getElementById('loginView');
+  const editorView = document.getElementById('editorView');
+  const loginStatus = document.getElementById('loginStatus');
+  const editorStatus = document.getElementById('editorStatus');
+  const saveStatus = document.getElementById('saveStatus');
+
+  function showStatus(el, msg, type) {
+    el.textContent = msg;
+    el.className = 'admin-status show ' + (type || 'info');
+  }
+  function hideStatus(el) {
+    el.className = 'admin-status';
+  }
+
+  function authHeaders() {
+    return {
+      'X-Admin-Password': password
+    };
+  }
+
+  async function apiGetFile(path) {
+    const res = await fetch(`${WORKER_URL}/file?path=${encodeURIComponent(path)}`, {
+      headers: authHeaders()
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const err = new Error(data.error || ('讀取 ' + path + ' 失敗（' + res.status + '）'));
+      err.status = res.status;
+      throw err;
+    }
+    return data;
+  }
+
+  async function apiPutFile(path, obj, sha, message) {
+    const res = await fetch(`${WORKER_URL}/file`, {
+      method: 'PUT',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
+      body: JSON.stringify({ path, obj, sha, message })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const err = new Error(data.error || ('儲存 ' + path + ' 失敗（' + res.status + '）'));
+      err.status = res.status;
+      throw err;
+    }
+    return data.sha;
+  }
+
+  async function verifyPassword(candidatePassword) {
+    const res = await fetch(`${WORKER_URL}/verify`, {
+      headers: { 'X-Admin-Password': candidatePassword }
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      if (data.error) throw new Error(data.error);
+      throw new Error('驗證失敗（' + res.status + '），請確認 Worker 網址是否設定正確。');
+    }
+    return data.name || '';
+  }
+
+  const PASSWORD_KEY = 'vtuber_admin_password';
+
+  function getSavedPassword() {
+    return localStorage.getItem(PASSWORD_KEY);
+  }
+
+  async function tryLogin(candidatePassword, remember) {
+    showStatus(loginStatus, '登入中…', 'info');
+    try {
+      const name = await verifyPassword(candidatePassword);
+      password = candidatePassword;
+      document.getElementById('editorNameLabel').textContent = name ? ('（' + name + '）') : '';
+      if (remember) {
+        localStorage.setItem(PASSWORD_KEY, candidatePassword);
+      } else {
+        localStorage.removeItem(PASSWORD_KEY);
+      }
+      await enterEditor();
+    } catch (e) {
+      showStatus(loginStatus, e.message, 'err');
+      password = null;
+    }
+  }
+
+  document.getElementById('loginBtn').addEventListener('click', () => {
+    const pw = document.getElementById('inPassword').value;
+    const remember = document.getElementById('inRemember').checked;
+    if (!pw) {
+      showStatus(loginStatus, '請輸入密碼。', 'err');
+      return;
+    }
+    tryLogin(pw, remember);
+  });
+
+  document.getElementById('inPassword').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('loginBtn').click();
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    password = null;
+    editorView.style.display = 'none';
+    loginView.style.display = 'flex';
+    document.getElementById('inPassword').value = '';
+    document.getElementById('editorNameLabel').textContent = '';
+    hideStatus(loginStatus);
+  });
+
+  document.getElementById('reloadBtn').addEventListener('click', () => {
+    if (confirm('確定要放棄目前未儲存的變更，重新載入嗎？')) {
+      enterEditor();
+    }
+  });
+
+  let contentData = null;
+  let channelsData = null;
+
+  async function enterEditor() {
+    showStatus(editorStatus, '載入內容中…', 'info');
+    editorView.style.display = 'block';
+    loginView.style.display = 'none';
+    try {
+      const [c, ch] = await Promise.all([
+        apiGetFile('content.json'),
+        apiGetFile('channels.json')
+      ]);
+      contentData = c.json;
+      contentSha = c.sha;
+      channelsData = ch.json;
+      channelsSha = ch.sha;
+      fillForm();
+      hideStatus(editorStatus);
+    } catch (e) {
+      showStatus(editorStatus, e.message, 'err');
+    }
+  }
+
+  document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelector(`.admin-panel[data-panel="${btn.dataset.tab}"]`).classList.add('active');
+    });
+  });
+
+  function fillForm() {
+    document.getElementById('f_heroTitle').value = contentData.home?.heroTitle || '';
+    document.getElementById('f_aboutText').value = contentData.home?.aboutText || '';
+    document.getElementById('f_foundedYear').value = contentData.home?.stats?.foundedYear || '';
+    document.getElementById('f_memberCount').value = contentData.home?.stats?.memberCount || '';
+
+    document.getElementById('f_membersIntro').value = contentData.membersPage?.intro || '';
+    document.getElementById('f_membersPlaceholderTitle').value = contentData.membersPage?.placeholderTitle || '';
+    document.getElementById('f_membersPlaceholderText').value = contentData.membersPage?.placeholderText || '';
+
+    document.getElementById('f_aboutIntro').value = contentData.aboutPage?.intro || '';
+    document.getElementById('f_aboutPlaceholderTitle').value = contentData.aboutPage?.placeholderTitle || '';
+    document.getElementById('f_aboutPlaceholderText').value = contentData.aboutPage?.placeholderText || '';
+
+    document.getElementById('f_videosIntro').value = contentData.videosPage?.intro || '';
+
+    document.getElementById('f_socialYoutube').value = contentData.site?.social?.youtube || '';
+    document.getElementById('f_socialTwitter').value = contentData.site?.social?.twitter || '';
+    document.getElementById('f_socialDiscord').value = contentData.site?.social?.discord || '';
+    document.getElementById('f_footerCopyright').value = contentData.site?.footerCopyright || '';
+
+    renderMemberEditors(contentData.home?.members || []);
+    renderChannelEditors(channelsData.channels || []);
+  }
+
+  function renderMemberEditors(members) {
+    const wrap = document.getElementById('memberEditorList');
+    wrap.innerHTML = members.map((m, i) => `
+      <div class="admin-card" data-member-row="${i}" style="background:var(--bg-elevated-2);">
+        <div class="admin-field"><label>成員名稱</label><input type="text" class="m-name" value="${escapeAttr(m.name)}"></div>
+        <div class="admin-field"><label>代表動物／副標</label><input type="text" class="m-role" value="${escapeAttr(m.role)}"></div>
+        <div class="admin-field"><label>一句話介紹</label><textarea class="m-desc">${escapeHtml(m.desc)}</textarea></div>
+        <div class="admin-field"><label>頻道連結</label><input type="url" class="m-url" value="${escapeAttr(m.channelUrl)}"></div>
+        <button type="button" class="admin-remove-btn" data-remove-member="${i}">移除這位成員</button>
+      </div>
+    `).join('');
+    wrap.querySelectorAll('[data-remove-member]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = Number(btn.dataset.removeMember);
+        const current = readMembersFromForm();
+        current.splice(idx, 1);
+        renderMemberEditors(current);
+      });
+    });
+  }
+  document.getElementById('addMemberBtn').addEventListener('click', () => {
+    const current = readMembersFromForm();
+    current.push({ name: '', role: '', desc: '', channelUrl: '#' });
+    renderMemberEditors(current);
+  });
+  function readMembersFromForm() {
+    return Array.from(document.querySelectorAll('[data-member-row]')).map(row => ({
+      name: row.querySelector('.m-name').value.trim(),
+      role: row.querySelector('.m-role').value.trim(),
+      desc: row.querySelector('.m-desc').value.trim(),
+      channelUrl: row.querySelector('.m-url').value.trim() || '#'
+    }));
+  }
+
+  function renderChannelEditors(channels) {
+    const wrap = document.getElementById('channelEditorList');
+    wrap.innerHTML = channels.map((c, i) => `
+      <div class="admin-channel-row" data-channel-row="${i}">
+        <input type="text" class="c-name" placeholder="成員名稱" value="${escapeAttr(c.name)}">
+        <input type="text" class="c-id" placeholder="頻道 ID（UC 開頭）" value="${escapeAttr(c.channel_id)}">
+        <button type="button" class="admin-remove-btn" data-remove-channel="${i}">移除</button>
+      </div>
+    `).join('');
+    wrap.querySelectorAll('[data-remove-channel]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = Number(btn.dataset.removeChannel);
+        const current = readChannelsFromForm();
+        current.splice(idx, 1);
+        renderChannelEditors(current);
+      });
+    });
+  }
+  document.getElementById('addChannelBtn').addEventListener('click', () => {
+    const current = readChannelsFromForm();
+    current.push({ name: '', channel_id: '' });
+    renderChannelEditors(current);
+  });
+  function readChannelsFromForm() {
+    return Array.from(document.querySelectorAll('[data-channel-row]')).map(row => ({
+      name: row.querySelector('.c-name').value.trim(),
+      channel_id: row.querySelector('.c-id').value.trim()
+    }));
+  }
+
+  function escapeHtml(str) {
+    return (str || '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  }
+  function escapeAttr(str) {
+    return escapeHtml(str).replace(/"/g, '&quot;');
+  }
+
+  document.getElementById('saveBtn').addEventListener('click', async () => {
+    showStatus(saveStatus, '儲存中…', 'info');
+
+    const newContent = {
+      site: {
+        footerCopyright: document.getElementById('f_footerCopyright').value.trim(),
+        social: {
+          youtube: document.getElementById('f_socialYoutube').value.trim() || '#',
+          twitter: document.getElementById('f_socialTwitter').value.trim() || '#',
+          discord: document.getElementById('f_socialDiscord').value.trim() || '#'
+        }
+      },
+      home: {
+        heroTitle: document.getElementById('f_heroTitle').value.trim(),
+        members: readMembersFromForm(),
+        aboutText: document.getElementById('f_aboutText').value.trim(),
+        stats: {
+          foundedYear: document.getElementById('f_foundedYear').value.trim(),
+          memberCount: document.getElementById('f_memberCount').value.trim()
+        }
+      },
+      membersPage: {
+        intro: document.getElementById('f_membersIntro').value.trim(),
+        placeholderTitle: document.getElementById('f_membersPlaceholderTitle').value.trim(),
+        placeholderText: document.getElementById('f_membersPlaceholderText').value.trim()
+      },
+      aboutPage: {
+        intro: document.getElementById('f_aboutIntro').value.trim(),
+        placeholderTitle: document.getElementById('f_aboutPlaceholderTitle').value.trim(),
+        placeholderText: document.getElementById('f_aboutPlaceholderText').value.trim()
+      },
+      videosPage: {
+        intro: document.getElementById('f_videosIntro').value.trim()
+      }
+    };
+
+    const newChannels = { channels: readChannelsFromForm() };
+
+    try {
+      contentSha = await apiPutFile('content.json', newContent, contentSha, '後台更新網站文字內容');
+      channelsSha = await apiPutFile('channels.json', newChannels, channelsSha, '後台更新 YouTube 頻道清單');
+      contentData = newContent;
+      channelsData = newChannels;
+      showStatus(saveStatus, '已儲存！GitHub Pages 約 1 分鐘後會更新到正式網站。', 'ok');
+    } catch (e) {
+      if (e.status === 409) {
+        showStatus(saveStatus, '儲存失敗：內容在其他地方被更新過，請按左上角「重新載入」後再修改一次。', 'err');
+      } else {
+        showStatus(saveStatus, e.message, 'err');
+      }
+    }
+  });
+
+  const savedPw = getSavedPassword();
+  if (savedPw) {
+    document.getElementById('inPassword').value = savedPw;
+    tryLogin(savedPw, true);
+  }
+})();
+</script>
+</body>
+</html>
