@@ -86,52 +86,8 @@
       </div>
       <a href="members.html" class="section-link">查看完整成員介紹</a>
     </div>
-    <div class="member-grid" id="c-member-grid">
-      <div class="member-card">
-        <div class="member-photo">
-          <img src="member-01.jpg" alt="成員照片">
-        </div>
-        <div class="member-info">
-          <div class="member-name">白幽海BUY</div>
-          <div class="member-role">代表動物：狐狸</div>
-          <p class="member-desc">一句話自我介紹放在這裡，之後可替換成正式文案。</p>
-          <a href="#" class="member-channel">前往頻道 →</a>
-        </div>
-      </div>
-      <div class="member-card">
-        <div class="member-photo">
-          <img src="member-02.jpg" alt="成員照片">
-        </div>
-        <div class="member-info">
-          <div class="member-name">黑龍</div>
-          <div class="member-role">代表動物：</div>
-          <p class="member-desc">一句話自我介紹放在這裡，之後可替換成正式文案。</p>
-          <a href="#" class="member-channel">前往頻道 →</a>
-        </div>
-      </div>
-      <div class="member-card">
-        <div class="member-photo">
-          <img src="member-03.jpg" alt="成員照片">
-        </div>
-        <div class="member-info">
-          <div class="member-name">闇黑.無影</div>
-          <div class="member-role">代表動物：</div>
-          <p class="member-desc">一句話自我介紹放在這裡，之後可替換成正式文案。</p>
-          <a href="#" class="member-channel">前往頻道 →</a>
-        </div>
-      </div>
-      <div class="member-card">
-        <div class="member-photo">
-          <img src="member-04.jpg" alt="成員照片">
-        </div>
-        <div class="member-info">
-          <div class="member-name">蛛蛛人(朝向250訂閱邁進)</div>
-          <div class="member-role">代表動物：蜘蛛</div>
-          <p class="member-desc">一句話自我介紹放在這裡，之後可替換成正式文案。</p>
-          <a href="#" class="member-channel">前往頻道 →</a>
-        </div>
-      </div>
-    </div>
+    <!-- 保持完全空白，交由 JS 直接渲染最新資料，防止文字閃爍 -->
+    <div class="member-grid" id="c-member-grid"></div>
   </div>
 </section>
 
@@ -293,19 +249,23 @@
       }
       if (Array.isArray(home.members) && home.members.length > 0) {
         const memberGrid = document.getElementById('c-member-grid');
-        memberGrid.innerHTML = home.members.map((m, i) => `
-          <div class="member-card">
-            <div class="member-photo">
-              <img src="member-${String(i + 1).padStart(2, '0')}.jpg" alt="成員照片">
+        memberGrid.innerHTML = home.members.map((m, i) => {
+          // 支援從 content.json 設定圖片名稱，預設為 member-01.jpg, member-02.jpg...
+          const photoImg = m.photo || `member-${String(i + 1).padStart(2, '0')}.jpg`;
+          return `
+            <div class="member-card">
+              <div class="member-photo">
+                <img src="${photoImg}" alt="${m.name || '成員照片'}">
+              </div>
+              <div class="member-info">
+                <div class="member-name">${m.name || ''}</div>
+                <div class="member-role">${m.role || ''}</div>
+                <p class="member-desc">${m.desc || ''}</p>
+                <a href="${m.channelUrl || '#'}" class="member-channel" target="_blank" rel="noopener">前往頻道 →</a>
+              </div>
             </div>
-            <div class="member-info">
-              <div class="member-name">${m.name || ''}</div>
-              <div class="member-role">${m.role || ''}</div>
-              <p class="member-desc">${m.desc || ''}</p>
-              <a href="${m.channelUrl || '#'}" class="member-channel">前往頻道 →</a>
-            </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
       }
       if (site.social) {
         if (site.social.youtube) document.getElementById('c-social-youtube').href = site.social.youtube;
@@ -315,7 +275,7 @@
       if (site.footerCopyright) document.getElementById('c-footerCopyright').textContent = site.footerCopyright;
     })
     .catch(() => {
-      // content.json 讀取失敗時，維持頁面上原本寫死的文字，網站仍可正常瀏覽
+      // 讀取失敗時靜默處理
     });
 </script>
 </body>
