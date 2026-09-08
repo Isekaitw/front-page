@@ -53,36 +53,33 @@
     white-space: pre-line;
   }
 
-  /* 6. 成員區塊重構：卡片化 + 左右橫向佈局 (解決簡介字數不一導致排版混亂的問題) */
+  /* 6. 維持大方塊直立佈局，僅優化文字與底邊齊平邏輯 */
   .member-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 24px 16px;
   }
 
   .member-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 12px;
-    padding: 16px;
+    padding: 20px 16px;
     display: flex;
-    flex-direction: row; /* 改為左右佈局：左頭像，右文字 */
-    align-items: flex-start;
-    gap: 16px;
-    transition: background 0.2s ease, border-color 0.2s ease;
-  }
-
-  .member-card:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.18);
+    flex-direction: column;
+    align-items: center; /* 保持頭像與名字水平居中 */
+    text-align: center;
+    height: 100%; /* 強制同列卡片等高 */
+    box-sizing: border-box;
   }
 
   .member-photo {
-    width: 72px;
-    height: 72px;
+    width: 90px;
+    height: 90px;
     flex-shrink: 0;
     border-radius: 50%;
     overflow: hidden;
+    margin-bottom: 12px;
     border: 1px solid rgba(255, 255, 255, 0.15);
   }
 
@@ -96,41 +93,56 @@
     display: flex;
     flex-direction: column;
     flex: 1;
-    height: 100%; /* 搭配 space-between 將按鈕推至最底部 */
+    width: 100%;
+    align-items: stretch;
   }
 
   .member-name {
     font-size: 1.1rem;
     font-weight: 700;
     color: #ffffff;
-    margin-bottom: 2px;
-    text-align: left;
+    margin-bottom: 4px;
+    text-align: center;
   }
 
   .member-role {
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.6);
-    margin-bottom: 8px;
-    text-align: left;
+    margin-bottom: 12px;
+    text-align: center;
   }
 
+  /* 簡介改為靠左對齊，固定區域高度確保文字長度不一也不會破壞版面 */
   .member-desc {
     font-size: 0.88rem;
     line-height: 1.5;
-    color: rgba(255, 255, 255, 0.85);
-    margin-bottom: 12px;
-    text-align: left; /* 長短不一的文字靠左對齊最自然 */
+    color: rgba(255, 255, 255, 0.8);
+    text-align: left;
     white-space: pre-line;
+    margin-bottom: 16px;
+    max-height: 4.5em; /* 約 3 行文字高度 */
+    overflow-y: auto;  /* 過長時內部滾動，維持整體卡片高度一致 */
+    padding-right: 4px;
   }
 
+  /* 隱藏微型滾動條但保留功能，維持畫面美觀 */
+  .member-desc::-webkit-scrollbar {
+    width: 3px;
+  }
+  .member-desc::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+  }
+
+  /* 強制將「前往頻道 →」對齊於卡片底部 */
   .member-channel {
-    margin-top: auto; /* 強制將按鈕對齊卡片底部 */
-    display: inline-block;
-    font-size: 0.85rem;
+    margin-top: auto;
+    font-size: 0.88rem;
     color: #7cefff;
     text-decoration: none;
     font-weight: 600;
-    text-align: left;
+    text-align: center;
+    padding-top: 8px;
   }
 
   .member-channel:hover {
