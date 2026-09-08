@@ -27,10 +27,10 @@
     cursor: default !important;
   }
 
-  /* 3. 團隊合照專屬樣式：矩形大圖，不使用圓形頭像框 */
+  /* 3. 團隊合照專屬樣式：矩形大圖，比例為 16:9 */
   .about-photo {
     width: 100%;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 16 / 9; /* 長寬比 16:9 */
     border-radius: 8px;
     overflow: hidden;
     border: 1px solid var(--line, rgba(255, 255, 255, 0.1));
@@ -42,18 +42,23 @@
     display: block;
   }
 
-  /* 4. 防止動態文字閃爍專用：資料載入完成前維持平滑渲染 */
+  /* 4. 全域動態文字與指定區域支援換行符號 (\n) */
+  .dyn-text,
+  .section-desc,
+  .member-name,
+  .member-role,
+  .member-desc,
+  #c-aboutText {
+    white-space: pre-line;
+  }
+
+  /* 防止動態文字載入前閃爍的最小高度設定 */
   .dyn-text {
     min-height: 1em;
     display: inline-block;
   }
 
-  /* 5. 保留「我們是誰」後台輸入的換行符號 */
-  #c-aboutText {
-    white-space: pre-line;
-  }
-
-  /* 6. 維持大方塊直立佈局，僅優化文字與底邊齊平邏輯 */
+  /* 5. 維持大方塊直立佈局，優化文字與底邊齊平邏輯 */
   .member-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -112,20 +117,19 @@
     text-align: center;
   }
 
-  /* 簡介改為靠左對齊，固定區域高度確保文字長度不一也不會破壞版面 */
+  /* 簡介靠左對齊，固定區域高度與自動滾動 */
   .member-desc {
     font-size: 0.88rem;
     line-height: 1.5;
     color: rgba(255, 255, 255, 0.8);
     text-align: left;
-    white-space: pre-line;
     margin-bottom: 16px;
     max-height: 4.5em; /* 約 3 行文字高度 */
     overflow-y: auto;  /* 過長時內部滾動，維持整體卡片高度一致 */
     padding-right: 4px;
   }
 
-  /* 隱藏微型滾動條但保留功能，維持畫面美觀 */
+  /* 隱藏微型滾動條但保留功能 */
   .member-desc::-webkit-scrollbar {
     width: 3px;
   }
@@ -193,7 +197,7 @@
       </div>
       <a href="members.html" class="section-link">查看完整成員介紹</a>
     </div>
-    <!-- 完全由 JS 動態渲染，無寫死舊卡片 -->
+    <!-- 完全由 JS 動態渲染 -->
     <div class="member-grid" id="c-member-grid"></div>
   </div>
 </section>
@@ -209,7 +213,7 @@
       </div>
       <a href="videos.html" class="section-link">查看所有影片</a>
     </div>
-    <!-- 預設隱藏，待 JSON 讀取後一次性顯示最新精選影片 -->
+    <!-- 預設隱藏，待 JSON 讀取後顯示 -->
     <div class="video-row" id="home-video-grid" style="display:none;"></div>
   </div>
 </section>
@@ -283,7 +287,7 @@
     return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
   }
 
-  // 1. 讀取精選影片資料（無舊畫面佔位，直接一次繪製）
+  // 1. 讀取精選影片資料
   fetch('videos.json')
     .then(res => res.json())
     .then(data => {
@@ -308,7 +312,7 @@
     })
     .catch(() => {});
 
-  // 2. 讀取頁面文字與成員資料（直接寫入空白容器，絕不閃爍）
+  // 2. 讀取頁面文字與成員資料
   fetch('content.json')
     .then(res => res.json())
     .then(data => {
