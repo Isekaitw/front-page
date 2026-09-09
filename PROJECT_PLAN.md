@@ -4,7 +4,10 @@
 
 妖契者是由幾位朋友共同發起的計畫。目前成員都還是個人 YouTuber（訂閱數皆在 200 以內），正朝著成為 VTuber 團隊的方向前進。本專案目標是建立一個團隊官方網站，作為觀眾認識成員、觀看影片與直播回放，以及了解團隊與合作洽詢的入口。
 
-- **網站性質**：純靜態網站（HTML / CSS / JavaScript），無需後端伺服器
+- **前台網站**：純靜態頁面（HTML / CSS / JavaScript），由 GitHub Pages 直接託管
+- **內容資料**：`content.json`、`channels.json`、`videos.json` 三份 JSON，前台頁面用 `fetch()` 讀取後動態渲染，不需要重新編輯 HTML 原始碼
+- **後台編輯**：`admin.html` 提供密碼登入的編輯介面，透過外部 Cloudflare Worker（`WORKER_URL`，不在此 repo 內）呼叫 GitHub API 讀寫上述 JSON 檔案
+- **影片自動抓取**：`.github/workflows/fetch-videos.yml` 每 6 小時自動執行 `scripts/fetch_videos.py`，抓取 `channels.json` 中各頻道最新影片並覆寫 `videos.json`
 - **託管方式**：GitHub Pages（免費、無用量額度限制，適合純靜態站台）
 - **目標受眾**：頻道觀眾、潛在合作方、新粉絲
 
@@ -13,14 +16,15 @@
 | 頁面 | 檔案 | 內容狀態 |
 |---|---|---|
 | 首頁 | `index.html` | ✅ 完整內容（導覽列、橫幅、成員預覽、影片精選、團隊簡介、頁尾）|
-| 成員介紹 | `members.html` | 🔲 框架完成，待補完整成員資料 |
-| 影片精選 | `videos.html` | 🔲 框架完成，分為「影片」／「直播」兩個分頁，待補內容 |
-| 關於我們／聯絡我們 | `about.html` | 🔲 框架完成，待補團隊故事與聯絡方式 |
+| 成員介紹 | `members.html` | ✅ 完整內容，六位成員卡片（名稱、代表動物、簡介、頻道連結） |
+| 影片精選 | `videos.html` | ✅ 框架與資料串接完成，分為「影片」／「直播」兩個分頁；實際影片列表待 `channels.json` 填入正確頻道 ID 後由自動化流程抓取 |
+| 關於我們／聯絡我們 | `about.html` | ✅ 完整內容（團隊故事 + 合作洽詢），聯絡表單／信箱待後台填入 Formspree ID 或聯絡信箱後啟用 |
+| 後台編輯 | `admin.html` | ✅ 完整內容，可編輯上述四頁的文字與成員名單，並管理 YouTube 頻道清單 |
 
 導覽選單：
 `首頁 / 成員介紹 / 影片精選 / 關於我們·聯絡我們`
 
-（原本規劃的「直播行程」獨立頁面已移除，直播回放內容併入「影片精選」頁的「直播」分頁）
+（原本規劃的「直播行程」獨立頁面已移除，直播回放內容併入「影片精選」頁的「直播」分頁；後台入口為隱藏功能，於首頁頁尾 Logo 連續點擊 5 下進入，不出現在導覽選單中）
 
 ## 3. 視覺設計規範
 
@@ -51,19 +55,28 @@
 - 純 HTML5 + CSS3 + Vanilla JavaScript，無框架、無建置流程
 - 共用樣式集中於 `style.css`，各頁面共用同一套設計系統
 - `videos.html` 內建分頁切換邏輯（影片／直播），純前端 JS 控制顯示/隱藏
-- 圖片目前使用 `placehold.co` 佔位圖，標記 `<!-- TODO -->` 處待換上實際圖片連結（Logo、橫幅、成員照、影片縮圖）
+- 所有前台動態文字、成員名單、影片資料皆由 JSON 檔案提供，前端一律先跳脫（escape）再輸出，並限制連結只接受 `http`/`https` 協定，避免後台內容被誤植惡意內容時影響訪客
+- 圖片（Logo、橫幅、成員照）已换成實際檔案；`team-photo.jpg` 尚待上傳，未上傳前首頁會顯示文字佔位區塊而非破圖
 
-## 5. 檔案結構（扁平化，方便手機上傳無需建資料夾）
+## 5. 檔案結構
 
 ```
 vtuber-site/
-├── index.html          首頁
-├── members.html        成員介紹（框架）
-├── videos.html          影片精選（影片／直播分頁，框架）
-├── about.html            關於我們／聯絡我們（框架）
-├── style.css              共用樣式
-├── PROJECT_PLAN.md       本企劃書
-└── README.md             部署操作說明
+├── index.html                       首頁
+├── members.html                     成員介紹
+├── videos.html                      影片精選（影片／直播分頁）
+├── about.html                       關於我們／聯絡我們
+├── admin.html                       後台編輯（隱藏入口，見上表說明）
+├── style.css                        共用樣式（含後台編輯介面樣式）
+├── content.json                     全站文字與成員名單資料
+├── channels.json                    YouTube 頻道清單（供自動抓取使用）
+├── videos.json                      自動抓取結果（由 GitHub Actions 產生，不需手動編輯）
+├── requirements.txt                 抓取腳本的 Python 相依套件
+├── scripts/fetch_videos.py          YouTube 影片自動抓取腳本
+├── .github/workflows/fetch-videos.yml  排程每 6 小時執行一次抓取腳本
+├── logo.png / banner.jpg / member-0X.jpg  網站圖片
+├── PROJECT_PLAN.md                  本企劃書
+└── README.md                        部署操作說明
 ```
 
 ## 6. GitHub Pages 部署與更新
@@ -74,16 +87,14 @@ vtuber-site/
 
 ## 7. 後續擴充建議（待討論）
 
-- **聯絡表單**：`about.html` 的合作洽詢表單可串接 [Formspree](https://formspree.io) 免費方案，讓表單直接寄信到指定信箱
-- **成員介紹內容**：待提供每位成員的立繪連結、人設文案、代表動物、社群連結
-- **影片精選頁**：待提供 YouTube 影片／直播回放連結，分別放入「影片」與「直播」分頁
-- **關於我們**：待補團隊故事文案與聯絡方式
+- **聯絡表單**：`about.html` 的合作洽詢表單已支援串接 [Formspree](https://formspree.io) 免費方案，只需到後台「關於我們頁」分頁填入 Formspree 表單 ID 即可啟用；未填時會顯示聯絡信箱或社群連結作為備援
+- **影片自動抓取**：需在 GitHub repository 的 **Settings → Secrets and variables → Actions** 設定 `YOUTUBE_API_KEY`（YouTube Data API v3 金鑰），並在後台「YouTube 頻道清單」分頁填入各成員正確的頻道 ID，工作流程才會實際抓到資料
+- **自訂網域**：如需綁定自訂網域，於 GitHub Pages 設定中新增 CNAME 即可
 
 ## 8. 待辦清單
 
-- [ ] 替換 Logo 與橫幅圖片連結
-- [ ] 補齊成員介紹頁內容（含代表動物設定）
-- [ ] 補齊影片精選頁的「影片」與「直播」內容
-- [ ] 補齊關於我們／聯絡我們頁內容
-- [ ] （選用）串接 Formspree 聯絡表單
+- [ ] 上傳 `team-photo.jpg`（團隊合照，首頁「我們是誰」區塊使用；未上傳前會顯示文字佔位區塊）
+- [ ] 在後台「YouTube 頻道清單」分頁填入六位成員正確的頻道 ID
+- [ ] 在 GitHub repository 設定 `YOUTUBE_API_KEY` 這組 Secret，讓自動抓取影片的排程真正生效
+- [ ] （選用）在後台「關於我們頁」分頁填入 Formspree 表單 ID 或聯絡信箱，啟用合作洽詢表單
 - [ ] （選用）綁定自訂網域

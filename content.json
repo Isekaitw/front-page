@@ -7,46 +7,46 @@
       "discord": "#"
     }
   },
+  "members": [
+    {
+      "name": "白幽海BUY",
+      "role": "代表動物：仙狐",
+      "desc": "我是隻仙狐，名叫白幽海",
+      "channelUrl": "https://www.youtube.com/@%E5%B9%BD%E9%B3%B4%E5%A4%9C%E6%9C%88"
+    },
+    {
+      "name": "無嘯天",
+      "role": "代表動物：黑龍",
+      "desc": "我是一隻龍，喜歡旅遊",
+      "channelUrl": "https://www.youtube.com/@%E9%BB%91%E9%BE%8D-k7n"
+    },
+    {
+      "name": "墨幽白",
+      "role": "代表動物：黑貓",
+      "desc": "你們好！我是幽靈族的黑貓名叫墨幽白，希望以後請多指教",
+      "channelUrl": "https://youtube.com/channel/UCnrLsDmezY-GKF98RV0_G9w?si=2XsvccGgsjG2nqrj"
+    },
+    {
+      "name": "闇影",
+      "role": "代表動物：紫貓",
+      "desc": "我是一隻貓，在被雷劈到後便有了控雷和化身的能力(疑似貓型避雷針？)",
+      "channelUrl": "https://youtube.com/channel/UCjz6ZAPxue2-x42o5-1HUnQ?si=-gY9RTpYs5yjZu6l"
+    },
+    {
+      "name": "蛛蛛人",
+      "role": "代表動物：蜘蛛",
+      "desc": "總愛特立獨行，對某些事情有著異常的執著",
+      "channelUrl": "https://youtube.com/channel/UCe7OEathxfSlLFN-XtBRW2A?si=l83nZxszpRcwVwcP"
+    },
+    {
+      "name": "大楊哈哈",
+      "role": "代表動物：山羊",
+      "desc": "我是來自魔界的行者，大楊\n哈哈(狂笑)",
+      "channelUrl": "https://youtube.com/channel/UC1dQeHLfTQS6DhFLLLjdvPA?si=5sMfrQS8l9A7UnA7"
+    }
+  ],
   "home": {
     "heroTitle": "在螢幕上，我們一起發光",
-    "members": [
-      {
-        "name": "白幽海BUY",
-        "role": "代表動物：仙狐",
-        "desc": "我是隻仙狐，名叫白幽海",
-        "channelUrl": "https://www.youtube.com/@%E5%B9%BD%E9%B3%B4%E5%A4%9C%E6%9C%88"
-      },
-      {
-        "name": "無嘯天",
-        "role": "代表動物：黑龍",
-        "desc": "我是一隻龍，喜歡旅遊",
-        "channelUrl": "https://www.youtube.com/@%E9%BB%91%E9%BE%8D-k7n"
-      },
-      {
-        "name": "墨幽白",
-        "role": "代表動物：黑貓",
-        "desc": "你們好！我是幽靈族的黑貓名叫墨幽白，希望以後請多指教",
-        "channelUrl": "https://youtube.com/channel/UCnrLsDmezY-GKF98RV0_G9w?si=2XsvccGgsjG2nqrj"
-      },
-      {
-        "name": "闇影",
-        "role": "代表動物：紫貓",
-        "desc": "我是一隻貓，在被雷劈到後便有了控雷和化身的能力(疑似貓型避雷針？)",
-        "channelUrl": "https://youtube.com/channel/UCjz6ZAPxue2-x42o5-1HUnQ?si=-gY9RTpYs5yjZu6l"
-      },
-      {
-        "name": "蛛蛛人",
-        "role": "代表動物：蜘蛛",
-        "desc": "總愛特立獨行，對某些事情有著異常的執著",
-        "channelUrl": "https://youtube.com/channel/UCe7OEathxfSlLFN-XtBRW2A?si=l83nZxszpRcwVwcP"
-      },
-      {
-        "name": "大楊哈哈",
-        "role": "代表動物：山羊",
-        "desc": "我是來自魔界的行者，大楊\n哈哈(狂笑)",
-        "channelUrl": "https://youtube.com/channel/UC1dQeHLfTQS6DhFLLLjdvPA?si=5sMfrQS8l9A7UnA7"
-      }
-    ],
     "aboutText": "妖契者是一群熱愛創作、懷抱夢想的夥伴共同發起的虛擬內容企劃。從企劃發想、角色設定到內容製作，每一個環節均由團隊成員親手打造，展現對創作的極致堅持與熱情。\n我們以遊戲實況、歌唱表演與音樂創作為核心，致力於透過高品質的互動內容，為觀眾帶來獨一無二的娛樂體驗。妖契者不僅是一個VTuber團隊，更是一個充滿生命力與創造力的內容品牌。\n未來，我們將持續深耕多元領域，探索虛擬與現實交織的無限可能。妖契者誠摯邀請您，與我們一同見證這段成長的旅程，攜手打造屬於我們的精彩篇章\n妖契者——與您一同編織虛實之間的奇幻物語。",
     "stats": {
       "foundedYear": "2026",
@@ -54,14 +54,13 @@
     }
   },
   "membersPage": {
-    "intro": "這裡將放上每位成員的完整介紹：立繪、人設、專長與社群連結。",
-    "placeholderTitle": "成員介紹內容建置中",
-    "placeholderText": "待確認每位成員的詳細資料（立繪圖片連結、人設文案、社群連結）後，將在此區塊放上完整的成員卡片列表。"
+    "intro": "六位成員、六種代表動物，點進頻道看看我們平常在玩什麼、唱什麼、聊什麼。"
   },
   "aboutPage": {
-    "intro": "這裡將放上團隊理念、成立故事，以及合作洽詢的聯絡方式。",
-    "placeholderTitle": "關於我們／聯絡我們建置中",
-    "placeholderText": "待確認團隊介紹文案與聯絡方式（表單或信箱）後，將在此區塊補上完整內容。"
+    "intro": "團隊理念、成立故事，以及合作洽詢的聯絡方式都在這裡。",
+    "story": "妖契者最初只是幾位喜歡直播、喜歡唱歌的朋友的閒聊企劃，聊著聊著就決定認真做一個團隊。\n我們沒有龐大的資源，但有一群願意花下班／下課時間練歌、剪片、寫企劃的夥伴。\n如果你喜歡我們的內容，歡迎訂閱、留言，或透過下方方式與我們聯絡合作。",
+    "contactEmail": "",
+    "formspreeId": ""
   },
   "videosPage": {
     "intro": "這裡將放上完整的影片與直播回顧列表，可依歌回、雜談、遊戲實況分類瀏覽。"

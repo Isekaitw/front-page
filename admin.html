@@ -153,6 +153,7 @@
 
         <div class="admin-tabs" id="adminTabs">
           <button class="admin-tab-btn active" data-tab="home">首頁</button>
+          <button class="admin-tab-btn" data-tab="members">成員名單</button>
           <button class="admin-tab-btn" data-tab="membersPage">成員介紹頁</button>
           <button class="admin-tab-btn" data-tab="aboutPage">關於我們頁</button>
           <button class="admin-tab-btn" data-tab="videosPage">影片精選頁</button>
@@ -186,9 +187,13 @@
             </div>
           </div>
 
+        </div>
+
+        <!-- 成員名單（首頁預覽與成員介紹頁共用） -->
+        <div class="admin-panel" data-panel="members">
           <div class="admin-card">
-            <h3>成員預覽卡片</h3>
-            <p class="admin-card-sub">照片檔名固定對應第 1～N 位為 member-01.jpg、member-02.jpg……，要換照片請直接到 GitHub 上傳同名圖片覆蓋，這裡只能改文字。</p>
+            <h3>成員名單</h3>
+            <p class="admin-card-sub">這份名單同時顯示於首頁「成員預覽」與「成員介紹」完整頁面。照片檔名固定對應第 1～N 位為 member-01.jpg、member-02.jpg……，要換照片請直接到 GitHub 上傳同名圖片覆蓋，這裡只能改文字。</p>
             <div id="memberEditorList"></div>
             <button class="btn btn-outline" id="addMemberBtn" type="button">＋ 新增一位成員</button>
           </div>
@@ -202,14 +207,6 @@
               <label for="f_membersIntro">頁面說明文字</label>
               <textarea id="f_membersIntro"></textarea>
             </div>
-            <div class="admin-field">
-              <label for="f_membersPlaceholderTitle">建置中提示標題</label>
-              <input type="text" id="f_membersPlaceholderTitle">
-            </div>
-            <div class="admin-field">
-              <label for="f_membersPlaceholderText">建置中提示內文</label>
-              <textarea id="f_membersPlaceholderText"></textarea>
-            </div>
           </div>
         </div>
 
@@ -218,16 +215,27 @@
           <div class="admin-card">
             <h3>關於我們／聯絡我們頁文字</h3>
             <div class="admin-field">
-              <label for="f_aboutIntro">頁面說明文字</label>
+              <label for="f_aboutIntro">頁面說明文字（頁首小段落）</label>
               <textarea id="f_aboutIntro"></textarea>
             </div>
             <div class="admin-field">
-              <label for="f_aboutPlaceholderTitle">建置中提示標題</label>
-              <input type="text" id="f_aboutPlaceholderTitle">
+              <label for="f_aboutStory">團隊故事全文</label>
+              <textarea id="f_aboutStory" rows="6"></textarea>
+            </div>
+          </div>
+          <div class="admin-card">
+            <h3>合作洽詢方式</h3>
+            <p class="admin-card-sub">
+              兩者擇一填寫即可：填 Formspree ID 會在網站上顯示可直接送出的表單；只填聯絡信箱則顯示 mailto 連結。
+              兩者都留空時，頁面會顯示「聯絡表單準備中」並引導訪客改用社群連結。
+            </p>
+            <div class="admin-field">
+              <label for="f_formspreeId">Formspree 表單 ID</label>
+              <input type="text" id="f_formspreeId" placeholder="例如 xzbqwxyz（在 formspree.io 建立表單後取得）">
             </div>
             <div class="admin-field">
-              <label for="f_aboutPlaceholderText">建置中提示內文</label>
-              <textarea id="f_aboutPlaceholderText"></textarea>
+              <label for="f_contactEmail">聯絡信箱（Formspree ID 留空時使用）</label>
+              <input type="email" id="f_contactEmail" placeholder="contact@example.com">
             </div>
           </div>
         </div>
@@ -461,12 +469,11 @@
     document.getElementById('f_memberCount').value = contentData.home?.stats?.memberCount || '';
 
     document.getElementById('f_membersIntro').value = contentData.membersPage?.intro || '';
-    document.getElementById('f_membersPlaceholderTitle').value = contentData.membersPage?.placeholderTitle || '';
-    document.getElementById('f_membersPlaceholderText').value = contentData.membersPage?.placeholderText || '';
 
     document.getElementById('f_aboutIntro').value = contentData.aboutPage?.intro || '';
-    document.getElementById('f_aboutPlaceholderTitle').value = contentData.aboutPage?.placeholderTitle || '';
-    document.getElementById('f_aboutPlaceholderText').value = contentData.aboutPage?.placeholderText || '';
+    document.getElementById('f_aboutStory').value = contentData.aboutPage?.story || '';
+    document.getElementById('f_formspreeId').value = contentData.aboutPage?.formspreeId || '';
+    document.getElementById('f_contactEmail').value = contentData.aboutPage?.contactEmail || '';
 
     document.getElementById('f_videosIntro').value = contentData.videosPage?.intro || '';
 
@@ -475,7 +482,7 @@
     document.getElementById('f_socialDiscord').value = contentData.site?.social?.discord || '';
     document.getElementById('f_footerCopyright').value = contentData.site?.footerCopyright || '';
 
-    renderMemberEditors(contentData.home?.members || []);
+    renderMemberEditors(contentData.members || []);
     renderChannelEditors(channelsData.channels || []);
   }
 
@@ -553,6 +560,17 @@
   document.getElementById('saveBtn').addEventListener('click', async () => {
     showStatus(saveStatus, '儲存中…', 'info');
 
+    const formspreeId = document.getElementById('f_formspreeId').value.trim();
+    if (formspreeId && !/^[a-zA-Z0-9]+$/.test(formspreeId)) {
+      showStatus(saveStatus, 'Formspree 表單 ID 只能是英數字，請確認是否貼錯內容（例如網址）。', 'err');
+      return;
+    }
+    const contactEmail = document.getElementById('f_contactEmail').value.trim();
+    if (contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)) {
+      showStatus(saveStatus, '聯絡信箱格式看起來不正確，請確認後再儲存。', 'err');
+      return;
+    }
+
     const newContent = {
       site: {
         footerCopyright: document.getElementById('f_footerCopyright').value.trim(),
@@ -562,9 +580,9 @@
           discord: document.getElementById('f_socialDiscord').value.trim() || '#'
         }
       },
+      members: readMembersFromForm(),
       home: {
         heroTitle: document.getElementById('f_heroTitle').value.trim(),
-        members: readMembersFromForm(),
         aboutText: document.getElementById('f_aboutText').value.trim(),
         stats: {
           foundedYear: document.getElementById('f_foundedYear').value.trim(),
@@ -572,14 +590,13 @@
         }
       },
       membersPage: {
-        intro: document.getElementById('f_membersIntro').value.trim(),
-        placeholderTitle: document.getElementById('f_membersPlaceholderTitle').value.trim(),
-        placeholderText: document.getElementById('f_membersPlaceholderText').value.trim()
+        intro: document.getElementById('f_membersIntro').value.trim()
       },
       aboutPage: {
         intro: document.getElementById('f_aboutIntro').value.trim(),
-        placeholderTitle: document.getElementById('f_aboutPlaceholderTitle').value.trim(),
-        placeholderText: document.getElementById('f_aboutPlaceholderText').value.trim()
+        story: document.getElementById('f_aboutStory').value.trim(),
+        contactEmail: contactEmail,
+        formspreeId: formspreeId
       },
       videosPage: {
         intro: document.getElementById('f_videosIntro').value.trim()

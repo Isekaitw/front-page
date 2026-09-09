@@ -6,7 +6,7 @@
 <title>妖契者 | VTuber 團隊</title>
 <link rel="stylesheet" href="style.css">
 <style>
-  /* 1. 認識成員按鈕：邊框明顯且懸停/點擊時絕對不變藍色 */
+  /* 認識成員按鈕：邊框明顯且懸停/點擊時絕對不變藍色（首頁 Hero 專屬設計） */
   .btn-outline {
     border: 2px solid rgba(255, 255, 255, 0.8) !important;
     color: #ffffff !important;
@@ -22,15 +22,15 @@
     outline: none;
   }
 
-  /* 2. 隱藏後台入口（頁尾 Logo）：保持一般滑鼠指標，不顯示手掌 */
+  /* 隱藏後台入口（頁尾 Logo）：保持一般滑鼠指標，不顯示手掌 */
   #footerLogo {
     cursor: default !important;
   }
 
-  /* 3. 團隊合照專屬樣式：矩形大圖，比例為 16:9 */
+  /* 團隊合照專屬樣式：矩形大圖，比例為 16:9 */
   .about-photo {
     width: 100%;
-    aspect-ratio: 16 / 9; /* 長寬比 16:9 */
+    aspect-ratio: 16 / 9;
     border-radius: 8px;
     overflow: hidden;
     border: 1px solid var(--line, rgba(255, 255, 255, 0.1));
@@ -41,116 +41,19 @@
     object-fit: cover;
     display: block;
   }
-
-  /* 4. 全域動態文字與指定區域支援換行符號 (\n) */
-  .dyn-text,
-  .section-desc,
-  .member-name,
-  .member-role,
-  .member-desc,
-  #c-aboutText {
-    white-space: pre-line;
-  }
-
-  /* 防止動態文字載入前閃爍的最小高度設定 */
-  .dyn-text {
-    min-height: 1em;
-    display: inline-block;
-  }
-
-  /* 5. 維持大方塊直立佈局，優化文字與底邊齊平邏輯 */
-  .member-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 24px 16px;
-  }
-
-  .member-card {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 12px;
-    padding: 20px 16px;
+  /* 團隊合照尚未上傳時的佔位樣式（避免顯示破圖 icon） */
+  .about-photo.img-missing {
     display: flex;
-    flex-direction: column;
-    align-items: center; /* 保持頭像與名字水平居中 */
-    text-align: center;
-    height: 100%; /* 強制同列卡片等高 */
-    box-sizing: border-box;
-  }
-
-  .member-photo {
-    width: 90px;
-    height: 90px;
-    flex-shrink: 0;
-    border-radius: 50%;
-    overflow: hidden;
-    margin-bottom: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-  }
-
-  .member-photo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .member-info {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    width: 100%;
-    align-items: stretch;
-  }
-
-  .member-name {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin-bottom: 4px;
-    text-align: center;
-  }
-
-  .member-role {
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-elevated, #121821);
+    color: var(--text-low, #5f6c7a);
     font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.6);
-    margin-bottom: 12px;
     text-align: center;
+    padding: 16px;
   }
-
-  /* 簡介靠左對齊，固定區域高度與自動滾動 */
-  .member-desc {
-    font-size: 0.88rem;
-    line-height: 1.5;
-    color: rgba(255, 255, 255, 0.8);
-    text-align: left;
-    margin-bottom: 16px;
-    max-height: 4.5em; /* 約 3 行文字高度 */
-    overflow-y: auto;  /* 過長時內部滾動，維持整體卡片高度一致 */
-    padding-right: 4px;
-  }
-
-  /* 隱藏微型滾動條但保留功能 */
-  .member-desc::-webkit-scrollbar {
-    width: 3px;
-  }
-  .member-desc::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 3px;
-  }
-
-  /* 強制將「前往頻道 →」對齊於卡片底部 */
-  .member-channel {
-    margin-top: auto;
-    font-size: 0.88rem;
-    color: #7cefff;
-    text-decoration: none;
-    font-weight: 600;
-    text-align: center;
-    padding-top: 8px;
-  }
-
-  .member-channel:hover {
-    text-decoration: underline;
+  .about-photo.img-missing::after {
+    content: '團隊合照準備中，請上傳 team-photo.jpg';
   }
 </style>
 </head>
@@ -230,8 +133,8 @@
         <div class="stat-item"><span>成員數量</span><strong id="c-memberCount" class="dyn-text"></strong></div>
       </div>
     </div>
-    <div class="about-photo">
-      <img src="team-photo.jpg" alt="團隊合照">
+    <div class="about-photo" id="c-aboutPhotoWrap">
+      <img src="team-photo.jpg" alt="團隊合照" onerror="this.closest('#c-aboutPhotoWrap').classList.add('img-missing'); this.remove();">
     </div>
   </div>
 </section>
@@ -287,6 +190,23 @@
     return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
   }
 
+  // 內容全部來自可透過後台編輯的 JSON，輸出前一律跳脫，避免後台被誤填或誤用時造成 XSS
+  function escapeHtml(str) {
+    return String(str ?? '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+  // 僅允許 http/https 連結，避免 javascript: 等危險協定被寫入 href
+  function safeUrl(url) {
+    if (!url) return '#';
+    try {
+      const u = new URL(url, window.location.href);
+      return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : '#';
+    } catch {
+      return url === '#' ? '#' : '#';
+    }
+  }
+
   // 1. 讀取精選影片資料
   fetch('videos.json')
     .then(res => res.json())
@@ -297,14 +217,14 @@
       if (combined.length === 0) return;
       const grid = document.getElementById('home-video-grid');
       grid.innerHTML = combined.map(v => `
-        <a class="video-card" href="${v.url}" target="_blank" rel="noopener" style="display:block;">
+        <a class="video-card" href="${safeUrl(v.url)}" target="_blank" rel="noopener" style="display:block;">
           <div class="video-thumb">
-            <img src="${v.thumbnail}" alt="${v.title}">
+            <img src="${escapeHtml(v.thumbnail)}" alt="${escapeHtml(v.title)}">
             <div class="video-thumb-play"><span>▶</span></div>
           </div>
           <div class="video-meta">
-            <div class="video-title">${v.title}</div>
-            <div class="video-sub">${v.channel} ・ ${formatDate(v.publishedAt)}</div>
+            <div class="video-title">${escapeHtml(v.title)}</div>
+            <div class="video-sub">${escapeHtml(v.channel)} ・ ${formatDate(v.publishedAt)}</div>
           </div>
         </a>
       `).join('');
@@ -318,6 +238,7 @@
     .then(data => {
       const home = data.home || {};
       const site = data.site || {};
+      const members = Array.isArray(data.members) ? data.members : [];
 
       if (home.heroTitle) document.getElementById('c-heroTitle').textContent = home.heroTitle;
       if (home.aboutText) document.getElementById('c-aboutText').textContent = home.aboutText;
@@ -325,22 +246,22 @@
         if (home.stats.foundedYear) document.getElementById('c-foundedYear').textContent = home.stats.foundedYear;
         if (home.stats.memberCount) document.getElementById('c-memberCount').textContent = home.stats.memberCount;
       }
-      
-      // 動態繪製成員卡片
-      if (Array.isArray(home.members) && home.members.length > 0) {
+
+      // 動態繪製成員卡片（與 members.html 共用同一份 members 名單）
+      if (members.length > 0) {
         const memberGrid = document.getElementById('c-member-grid');
-        memberGrid.innerHTML = home.members.map((m, i) => {
+        memberGrid.innerHTML = members.map((m, i) => {
           const photoImg = m.photo || `member-${String(i + 1).padStart(2, '0')}.jpg`;
           return `
             <div class="member-card">
               <div class="member-photo">
-                <img src="${photoImg}" alt="${m.name || '成員照片'}">
+                <img src="${escapeHtml(photoImg)}" alt="${escapeHtml(m.name || '成員照片')}">
               </div>
               <div class="member-info">
-                <div class="member-name">${m.name || ''}</div>
-                <div class="member-role">${m.role || ''}</div>
-                <p class="member-desc">${m.desc || ''}</p>
-                <a href="${m.channelUrl || '#'}" class="member-channel" target="_blank" rel="noopener">前往頻道 →</a>
+                <div class="member-name">${escapeHtml(m.name)}</div>
+                <div class="member-role">${escapeHtml(m.role)}</div>
+                <p class="member-desc">${escapeHtml(m.desc)}</p>
+                <a href="${safeUrl(m.channelUrl)}" class="member-channel" target="_blank" rel="noopener">前往頻道 →</a>
               </div>
             </div>
           `;
@@ -349,9 +270,9 @@
 
       // 社群連結與頁尾版權
       if (site.social) {
-        if (site.social.youtube) document.getElementById('c-social-youtube').href = site.social.youtube;
-        if (site.social.twitter) document.getElementById('c-social-twitter').href = site.social.twitter;
-        if (site.social.discord) document.getElementById('c-social-discord').href = site.social.discord;
+        if (site.social.youtube) document.getElementById('c-social-youtube').href = safeUrl(site.social.youtube);
+        if (site.social.twitter) document.getElementById('c-social-twitter').href = safeUrl(site.social.twitter);
+        if (site.social.discord) document.getElementById('c-social-discord').href = safeUrl(site.social.discord);
       }
       if (site.footerCopyright) document.getElementById('c-footerCopyright').textContent = site.footerCopyright;
     })

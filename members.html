@@ -5,6 +5,60 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>成員介紹 | 妖契者</title>
 <link rel="stylesheet" href="style.css">
+<style>
+  .members-full-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 28px;
+  }
+  .member-full-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--cyan-dim);
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: border-color 0.15s ease;
+  }
+  .member-full-card:hover { border-left-color: var(--cyan); }
+  .member-full-photo {
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid var(--line);
+    margin-bottom: 16px;
+    flex-shrink: 0;
+  }
+  .member-full-photo img { width: 100%; height: 100%; object-fit: cover; }
+  .member-full-name {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    color: var(--text-hi);
+  }
+  .member-full-role {
+    color: var(--cyan-bright);
+    font-size: 0.85rem;
+    margin-top: 4px;
+  }
+  .member-full-desc {
+    color: var(--text-mid);
+    font-size: 0.92rem;
+    margin-top: 14px;
+    white-space: pre-line;
+  }
+  .member-full-channel {
+    margin-top: 18px;
+    display: inline-block;
+    color: var(--cyan-bright);
+    font-size: 0.88rem;
+    border-bottom: 1px solid var(--cyan-dim);
+    padding-bottom: 2px;
+  }
+  .member-full-channel:hover { color: var(--text-hi); border-color: var(--cyan-bright); }
+</style>
 </head>
 <body>
 
@@ -28,15 +82,16 @@
   <div class="container">
     <span class="section-num">MEMBERS</span>
     <h1>成員介紹</h1>
-    <p id="c-membersIntro">這裡將放上每位成員的完整介紹：立繪、人設、專長與社群連結。</p>
+    <p id="c-membersIntro">六位成員、六種代表動物，點進頻道看看我們平常在玩什麼、唱什麼、聊什麼。</p>
   </div>
 </div>
 
 <section>
   <div class="container">
-    <div class="placeholder-block">
-      <strong id="c-membersPlaceholderTitle">成員介紹內容建置中</strong>
-      <span id="c-membersPlaceholderText">待確認每位成員的詳細資料（立繪圖片連結、人設文案、社群連結）後，將在此區塊放上完整的成員卡片列表。</span>
+    <div class="members-full-grid" id="c-members-grid"></div>
+    <div class="placeholder-block" id="membersEmpty" style="display:none; margin-top:28px;">
+      <strong>成員名單準備中</strong>
+      <span>成員資料尚未設定，請透過後台編輯新增成員。</span>
     </div>
   </div>
 </section>
@@ -69,18 +124,54 @@
     navToggle.setAttribute('aria-expanded', open);
   });
 
+  function escapeHtml(str) {
+    return String(str ?? '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+  function safeUrl(url) {
+    if (!url) return '#';
+    try {
+      const u = new URL(url, window.location.href);
+      return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : '#';
+    } catch {
+      return '#';
+    }
+  }
+
   fetch('content.json')
     .then(res => res.json())
     .then(data => {
       const page = data.membersPage || {};
       const site = data.site || {};
+      const members = Array.isArray(data.members) ? data.members : [];
+
       if (page.intro) document.getElementById('c-membersIntro').textContent = page.intro;
-      if (page.placeholderTitle) document.getElementById('c-membersPlaceholderTitle').textContent = page.placeholderTitle;
-      if (page.placeholderText) document.getElementById('c-membersPlaceholderText').textContent = page.placeholderText;
+
+      const grid = document.getElementById('c-members-grid');
+      if (members.length === 0) {
+        document.getElementById('membersEmpty').style.display = 'block';
+      } else {
+        grid.innerHTML = members.map((m, i) => {
+          const photoImg = m.photo || `member-${String(i + 1).padStart(2, '0')}.jpg`;
+          return `
+            <div class="member-full-card">
+              <div class="member-full-photo">
+                <img src="${escapeHtml(photoImg)}" alt="${escapeHtml(m.name || '成員照片')}">
+              </div>
+              <div class="member-full-name">${escapeHtml(m.name)}</div>
+              <div class="member-full-role">${escapeHtml(m.role)}</div>
+              <p class="member-full-desc">${escapeHtml(m.desc)}</p>
+              <a href="${safeUrl(m.channelUrl)}" class="member-full-channel" target="_blank" rel="noopener">前往頻道 →</a>
+            </div>
+          `;
+        }).join('');
+      }
+
       if (site.social) {
-        if (site.social.youtube) document.getElementById('c-social-youtube').href = site.social.youtube;
-        if (site.social.twitter) document.getElementById('c-social-twitter').href = site.social.twitter;
-        if (site.social.discord) document.getElementById('c-social-discord').href = site.social.discord;
+        if (site.social.youtube) document.getElementById('c-social-youtube').href = safeUrl(site.social.youtube);
+        if (site.social.twitter) document.getElementById('c-social-twitter').href = safeUrl(site.social.twitter);
+        if (site.social.discord) document.getElementById('c-social-discord').href = safeUrl(site.social.discord);
       }
       if (site.footerCopyright) document.getElementById('c-footerCopyright').textContent = site.footerCopyright;
     })

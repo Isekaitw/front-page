@@ -5,6 +5,57 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>關於我們 | 妖契者</title>
 <link rel="stylesheet" href="style.css">
+<style>
+  .about-story {
+    color: var(--text-mid);
+    font-size: 1rem;
+    white-space: pre-line;
+    max-width: 720px;
+  }
+  .contact-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--cyan-dim);
+    padding: 32px 28px;
+    max-width: 520px;
+  }
+  .contact-field {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .contact-field label {
+    font-size: 0.88rem;
+    color: var(--text-mid);
+  }
+  .contact-field input,
+  .contact-field textarea {
+    background: var(--bg-primary);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    color: var(--text-hi);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    padding: 10px 12px;
+    resize: vertical;
+  }
+  .contact-field input:focus,
+  .contact-field textarea:focus {
+    outline: none;
+    border-color: var(--cyan-dim);
+  }
+  .contact-status {
+    margin-top: 14px;
+    font-size: 0.88rem;
+    display: none;
+  }
+  .contact-status.show { display: block; }
+  .contact-status.ok { color: var(--cyan-bright); }
+  .contact-status.err { color: #ff8b8b; }
+  .contact-fallback a { color: var(--cyan-bright); border-bottom: 1px solid var(--cyan-dim); padding-bottom: 1px; }
+  .contact-fallback a:hover { color: var(--text-hi); border-color: var(--cyan-bright); }
+</style>
 </head>
 <body>
 
@@ -28,15 +79,48 @@
   <div class="container">
     <span class="section-num">ABOUT &amp; CONTACT</span>
     <h1>關於我們／聯絡我們</h1>
-    <p id="c-aboutPageIntro">這裡將放上團隊理念、成立故事，以及合作洽詢的聯絡方式。</p>
+    <p id="c-aboutPageIntro">團隊理念、成立故事，以及合作洽詢的聯絡方式都在這裡。</p>
   </div>
 </div>
 
 <section>
   <div class="container">
-    <div class="placeholder-block">
-      <strong id="c-aboutPlaceholderTitle">關於我們／聯絡我們建置中</strong>
-      <span id="c-aboutPlaceholderText">待確認團隊介紹文案與聯絡方式（表單或信箱）後，將在此區塊補上完整內容。</span>
+    <span class="section-num">STORY</span>
+    <h2 style="margin-bottom:20px;">我們的故事</h2>
+    <p class="about-story" id="c-aboutStory"></p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <span class="section-num">CONTACT</span>
+    <h2 style="margin-bottom:20px;">合作洽詢</h2>
+
+    <!-- 若後台設定了 Formspree ID，顯示可直接送出的表單 -->
+    <form class="contact-card" id="contactForm" style="display:none;">
+      <div class="contact-field">
+        <label for="cf-name">您的稱呼</label>
+        <input type="text" id="cf-name" name="name" required maxlength="80">
+      </div>
+      <div class="contact-field">
+        <label for="cf-email">聯絡信箱</label>
+        <input type="email" id="cf-email" name="email" required maxlength="120">
+      </div>
+      <div class="contact-field">
+        <label for="cf-message">合作內容 / 想說的話</label>
+        <textarea id="cf-message" name="message" rows="5" required maxlength="2000"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" id="cf-submit">送出</button>
+      <div class="contact-status" id="cf-status"></div>
+    </form>
+
+    <!-- 尚未設定表單時，顯示信箱或社群連結作為聯絡方式 -->
+    <div class="contact-card contact-fallback" id="contactFallback" style="display:none;">
+      <p style="color:var(--text-mid); margin:0 0 12px;" id="cf-fallback-text"></p>
+      <a href="#" id="cf-fallback-email" style="display:none;"></a>
+      <p style="color:var(--text-low); font-size:0.85rem; margin-top:16px;">
+        也歡迎透過頁尾的社群連結私訊我們。
+      </p>
     </div>
   </div>
 </section>
@@ -69,22 +153,110 @@
     navToggle.setAttribute('aria-expanded', open);
   });
 
+  function escapeHtml(str) {
+    return String(str ?? '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+  function safeUrl(url) {
+    if (!url) return '#';
+    try {
+      const u = new URL(url, window.location.href);
+      return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : '#';
+    } catch {
+      return '#';
+    }
+  }
+  // 僅接受基本合法格式的信箱字串才組成 mailto 連結
+  function safeMailto(email) {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return null;
+    return 'mailto:' + encodeURIComponent(email).replace(/%40/g, '@');
+  }
+
   fetch('content.json')
     .then(res => res.json())
     .then(data => {
       const page = data.aboutPage || {};
       const site = data.site || {};
       if (page.intro) document.getElementById('c-aboutPageIntro').textContent = page.intro;
-      if (page.placeholderTitle) document.getElementById('c-aboutPlaceholderTitle').textContent = page.placeholderTitle;
-      if (page.placeholderText) document.getElementById('c-aboutPlaceholderText').textContent = page.placeholderText;
+      if (page.story) document.getElementById('c-aboutStory').textContent = page.story;
+
+      const formspreeId = (page.formspreeId || '').trim();
+      const contactEmail = (page.contactEmail || '').trim();
+
+      if (formspreeId) {
+        // 只允許安全的 ID 格式（英數字），避免被設成任意跨站表單目的地
+        if (/^[a-zA-Z0-9]+$/.test(formspreeId)) {
+          setupFormspree(formspreeId);
+        } else {
+          showFallback('合作洽詢表單設定有誤，請暫時使用下方聯絡方式。', null);
+        }
+      } else if (contactEmail) {
+        showFallback('歡迎透過信箱與我們聯絡：', safeMailto(contactEmail) ? contactEmail : null);
+      } else {
+        showFallback('聯絡表單準備中，歡迎先透過下方社群連結私訊我們。', null);
+      }
+
       if (site.social) {
-        if (site.social.youtube) document.getElementById('c-social-youtube').href = site.social.youtube;
-        if (site.social.twitter) document.getElementById('c-social-twitter').href = site.social.twitter;
-        if (site.social.discord) document.getElementById('c-social-discord').href = site.social.discord;
+        if (site.social.youtube) document.getElementById('c-social-youtube').href = safeUrl(site.social.youtube);
+        if (site.social.twitter) document.getElementById('c-social-twitter').href = safeUrl(site.social.twitter);
+        if (site.social.discord) document.getElementById('c-social-discord').href = safeUrl(site.social.discord);
       }
       if (site.footerCopyright) document.getElementById('c-footerCopyright').textContent = site.footerCopyright;
     })
-    .catch(() => {});
+    .catch(() => {
+      showFallback('聯絡表單準備中，歡迎先透過下方社群連結私訊我們。', null);
+    });
+
+  function showFallback(text, email) {
+    document.getElementById('contactFallback').style.display = 'block';
+    document.getElementById('cf-fallback-text').textContent = text;
+    const emailLink = document.getElementById('cf-fallback-email');
+    const mailto = email ? safeMailto(email) : null;
+    if (mailto) {
+      emailLink.href = mailto;
+      emailLink.textContent = email;
+      emailLink.style.display = 'inline-block';
+    }
+  }
+
+  function setupFormspree(formspreeId) {
+    const form = document.getElementById('contactForm');
+    form.action = `https://formspree.io/f/${formspreeId}`;
+    form.method = 'POST';
+    form.style.display = 'block';
+
+    const status = document.getElementById('cf-status');
+    const submitBtn = document.getElementById('cf-submit');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      status.className = 'contact-status show';
+      status.textContent = '送出中…';
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          body: new FormData(form)
+        });
+        if (res.ok) {
+          status.className = 'contact-status show ok';
+          status.textContent = '已送出，謝謝您的訊息，我們會盡快回覆！';
+          form.reset();
+        } else {
+          status.className = 'contact-status show err';
+          status.textContent = '送出失敗，請稍後再試，或改用頁尾的社群連結聯絡我們。';
+        }
+      } catch {
+        status.className = 'contact-status show err';
+        status.textContent = '網路連線異常，請稍後再試，或改用頁尾的社群連結聯絡我們。';
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  }
 </script>
 </body>
 </html>

@@ -106,6 +106,21 @@
     return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
   }
 
+  function escapeHtml(str) {
+    return String(str ?? '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+  function safeUrl(url) {
+    if (!url) return '#';
+    try {
+      const u = new URL(url, window.location.href);
+      return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : '#';
+    } catch {
+      return '#';
+    }
+  }
+
   function renderList(list, gridEl, emptyEl) {
     if (!list || list.length === 0) {
       emptyEl.style.display = 'block';
@@ -115,14 +130,14 @@
     emptyEl.style.display = 'none';
     gridEl.style.display = 'grid';
     gridEl.innerHTML = list.map(v => `
-      <a class="video-card" href="${v.url}" target="_blank" rel="noopener" style="display:block;">
+      <a class="video-card" href="${safeUrl(v.url)}" target="_blank" rel="noopener" style="display:block;">
         <div class="video-thumb">
-          <img src="${v.thumbnail}" alt="${v.title}">
+          <img src="${escapeHtml(v.thumbnail)}" alt="${escapeHtml(v.title)}">
           <div class="video-thumb-play"><span>▶</span></div>
         </div>
         <div class="video-meta">
-          <div class="video-title">${v.title}</div>
-          <div class="video-sub">${v.channel} ・ ${formatDate(v.publishedAt)}</div>
+          <div class="video-title">${escapeHtml(v.title)}</div>
+          <div class="video-sub">${escapeHtml(v.channel)} ・ ${formatDate(v.publishedAt)}</div>
         </div>
       </a>
     `).join('');
@@ -145,9 +160,9 @@
       const site = data.site || {};
       if (page.intro) document.getElementById('c-videosIntro').textContent = page.intro;
       if (site.social) {
-        if (site.social.youtube) document.getElementById('c-social-youtube').href = site.social.youtube;
-        if (site.social.twitter) document.getElementById('c-social-twitter').href = site.social.twitter;
-        if (site.social.discord) document.getElementById('c-social-discord').href = site.social.discord;
+        if (site.social.youtube) document.getElementById('c-social-youtube').href = safeUrl(site.social.youtube);
+        if (site.social.twitter) document.getElementById('c-social-twitter').href = safeUrl(site.social.twitter);
+        if (site.social.discord) document.getElementById('c-social-discord').href = safeUrl(site.social.discord);
       }
       if (site.footerCopyright) document.getElementById('c-footerCopyright').textContent = site.footerCopyright;
     })
