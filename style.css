@@ -342,8 +342,15 @@ section:last-of-type { border-bottom: none; }
 
 .member-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 24px 16px;
+}
+
+/* 桌面版（>780px）固定 3 欄，不隨視窗寬度增減欄數，維持排版一致 */
+@media (min-width: 781px) {
+  .member-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .member-card {
