@@ -113,9 +113,9 @@ def main():
 
     all_videos = []
     for ch in config.get("channels", []):
-        channel_id = ch.get("channel_id", "")
+        channel_id = (ch.get("channel_id") or "").strip()
         name = ch.get("name", "")
-        if not channel_id or channel_id.startswith("UC替換"):
+        if not channel_id or not channel_id.startswith("UC"):
             print(f"[略過] 「{name}」尚未填入正確的頻道 ID，先跳過。", file=sys.stderr)
             continue
         playlist_id = uploads_playlist_id(channel_id)
