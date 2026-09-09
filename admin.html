@@ -193,7 +193,7 @@
         <div class="admin-panel" data-panel="members">
           <div class="admin-card">
             <h3>成員名單</h3>
-            <p class="admin-card-sub">這份名單同時顯示於首頁「成員預覽」與「成員介紹」完整頁面。照片檔名固定對應第 1～N 位為 member-01.jpg、member-02.jpg……，要換照片請直接到 GitHub 上傳同名圖片覆蓋，這裡只能改文字。</p>
+            <p class="admin-card-sub">「一句話介紹」用於首頁成員預覽；「長篇角色故事」用於成員介紹完整頁面。首頁大頭照固定對應 member-01.jpg、member-02.jpg……；成員介紹頁的三視圖立繪（單張大圖，正面／側面／背面畫在同一張圖上）固定對應 member-01-full.jpg、member-02-full.jpg……，依此類推。要換照片請直接到 GitHub 上傳同名圖片覆蓋，這裡只能改文字。</p>
             <div id="memberEditorList"></div>
             <button class="btn btn-outline" id="addMemberBtn" type="button">＋ 新增一位成員</button>
           </div>
@@ -492,8 +492,22 @@
       <div class="admin-card" data-member-row="${i}" style="background:var(--bg-elevated-2);">
         <div class="admin-field"><label>成員名稱</label><input type="text" class="m-name" value="${escapeAttr(m.name)}"></div>
         <div class="admin-field"><label>代表動物／副標</label><input type="text" class="m-role" value="${escapeAttr(m.role)}"></div>
-        <div class="admin-field"><label>一句話介紹</label><textarea class="m-desc">${escapeHtml(m.desc)}</textarea></div>
+        <div class="admin-field"><label>一句話介紹（首頁用）</label><textarea class="m-desc">${escapeHtml(m.desc)}</textarea></div>
+        <div class="admin-field"><label>長篇角色故事（成員介紹頁用）</label><textarea class="m-story" rows="6">${escapeHtml(m.story)}</textarea></div>
         <div class="admin-field"><label>頻道連結</label><input type="url" class="m-url" value="${escapeAttr(m.channelUrl)}"></div>
+        <div class="admin-field">
+          <label>詳細資料（如生日、血型，可自行新增／移除欄位，成員介紹頁用）</label>
+          <div class="m-details-list" data-details-list>
+            ${(m.details || []).map((d, di) => `
+              <div class="admin-detail-row" data-detail-row="${di}" style="display:flex;gap:8px;margin-bottom:6px;">
+                <input type="text" class="m-detail-label" placeholder="欄位名稱，如生日" value="${escapeAttr(d.label)}" style="flex:0 0 110px;">
+                <input type="text" class="m-detail-value" placeholder="內容" value="${escapeAttr(d.value)}" style="flex:1;">
+                <button type="button" class="admin-remove-btn" data-remove-detail="${di}">移除</button>
+              </div>
+            `).join('')}
+          </div>
+          <button type="button" class="btn btn-outline add-detail-btn" data-add-detail="${i}">＋ 新增一筆資料</button>
+        </div>
         <button type="button" class="admin-remove-btn" data-remove-member="${i}">移除這位成員</button>
       </div>
     `).join('');
@@ -505,10 +519,29 @@
         renderMemberEditors(current);
       });
     });
+    wrap.querySelectorAll('.add-detail-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = Number(btn.dataset.addDetail);
+        const current = readMembersFromForm();
+        if (!current[idx].details) current[idx].details = [];
+        current[idx].details.push({ label: '', value: '' });
+        renderMemberEditors(current);
+      });
+    });
+    wrap.querySelectorAll('[data-remove-detail]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const memberRow = btn.closest('[data-member-row]');
+        const memberIdx = Number(memberRow.dataset.memberRow);
+        const detailIdx = Number(btn.dataset.removeDetail);
+        const current = readMembersFromForm();
+        current[memberIdx].details.splice(detailIdx, 1);
+        renderMemberEditors(current);
+      });
+    });
   }
   document.getElementById('addMemberBtn').addEventListener('click', () => {
     const current = readMembersFromForm();
-    current.push({ name: '', role: '', desc: '', channelUrl: '#' });
+    current.push({ name: '', role: '', desc: '', story: '', channelUrl: '#', details: [{ label: '生日', value: '' }, { label: '血型', value: '' }] });
     renderMemberEditors(current);
   });
   function readMembersFromForm() {
@@ -516,7 +549,12 @@
       name: row.querySelector('.m-name').value.trim(),
       role: row.querySelector('.m-role').value.trim(),
       desc: row.querySelector('.m-desc').value.trim(),
-      channelUrl: row.querySelector('.m-url').value.trim() || '#'
+      story: row.querySelector('.m-story').value.trim(),
+      channelUrl: row.querySelector('.m-url').value.trim() || '#',
+      details: Array.from(row.querySelectorAll('[data-detail-row]')).map(dr => ({
+        label: dr.querySelector('.m-detail-label').value.trim(),
+        value: dr.querySelector('.m-detail-value').value.trim()
+      }))
     }));
   }
 

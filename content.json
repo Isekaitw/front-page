@@ -12,43 +12,103 @@
       "name": "白幽海BUY",
       "role": "代表動物：仙狐",
       "desc": "我是隻仙狐，名叫白幽海",
-      "channelUrl": "https://www.youtube.com/@%E5%B9%BD%E9%B3%B4%E5%A4%9C%E6%9C%88"
+      "story": "",
+      "channelUrl": "https://www.youtube.com/@%E5%B9%BD%E9%B3%B4%E5%A4%9C%E6%9C%88",
+      "details": [
+        {
+          "label": "生日",
+          "value": ""
+        },
+        {
+          "label": "血型",
+          "value": ""
+        }
+      ]
     },
     {
       "name": "無嘯天",
       "role": "代表動物：黑龍",
       "desc": "我是一隻龍，喜歡旅遊",
-      "channelUrl": "https://www.youtube.com/@%E9%BB%91%E9%BE%8D-k7n"
+      "story": "",
+      "channelUrl": "https://www.youtube.com/@%E9%BB%91%E9%BE%8D-k7n",
+      "details": [
+        {
+          "label": "生日",
+          "value": ""
+        },
+        {
+          "label": "血型",
+          "value": ""
+        }
+      ]
     },
     {
       "name": "墨幽白",
       "role": "代表動物：黑貓",
       "desc": "你們好！我是幽靈族的黑貓名叫墨幽白，希望以後請多指教",
-      "channelUrl": "https://youtube.com/channel/UCnrLsDmezY-GKF98RV0_G9w?si=2XsvccGgsjG2nqrj"
+      "story": "",
+      "channelUrl": "https://youtube.com/channel/UCnrLsDmezY-GKF98RV0_G9w?si=2XsvccGgsjG2nqrj",
+      "details": [
+        {
+          "label": "生日",
+          "value": ""
+        },
+        {
+          "label": "血型",
+          "value": ""
+        }
+      ]
     },
     {
       "name": "闇影",
       "role": "代表動物：紫貓",
       "desc": "我是一隻貓，在被雷劈到後便有了控雷和化身的能力(疑似貓型避雷針？)",
-      "channelUrl": "https://youtube.com/channel/UCjz6ZAPxue2-x42o5-1HUnQ?si=-gY9RTpYs5yjZu6l"
+      "story": "",
+      "channelUrl": "https://youtube.com/channel/UCjz6ZAPxue2-x42o5-1HUnQ?si=-gY9RTpYs5yjZu6l",
+      "details": [
+        {
+          "label": "生日",
+          "value": ""
+        },
+        {
+          "label": "血型",
+          "value": ""
+        }
+      ]
     },
     {
       "name": "蛛蛛人",
       "role": "代表動物：蜘蛛",
       "desc": "總愛特立獨行，對某些事情有著異常的執著",
-      "channelUrl": "https://youtube.com/channel/UCe7OEathxfSlLFN-XtBRW2A?si=l83nZxszpRcwVwcP"
+      "story": "",
+      "channelUrl": "https://youtube.com/channel/UCe7OEathxfSlLFN-XtBRW2A?si=l83nZxszpRcwVwcP",
+      "details": [
+        {
+          "label": "生日",
+          "value": ""
+        },
+        {
+          "label": "血型",
+          "value": ""
+        }
+      ]
     },
     {
       "name": "大楊哈哈",
       "role": "代表動物：山羊",
       "desc": "我是來自魔界的行者，大楊\n哈哈(狂笑)",
-      "channelUrl": "https://youtube.com/channel/UC1dQeHLfTQS6DhFLLLjdvPA?si=5sMfrQS8l9A7UnA7"
-    },
-    {
-      "name": "婉夢",
-      "role": "代表動物：精靈",
-      "desc": "",
-      "channelUrl": "https://www.youtube.com/@%E5%A9%89%E5%A4%A2-l8q/shorts"
+      "story": "",
+      "channelUrl": "https://youtube.com/channel/UC1dQeHLfTQS6DhFLLLjdvPA?si=5sMfrQS8l9A7UnA7",
+      "details": [
+        {
+          "label": "生日",
+          "value": ""
+        },
+        {
+          "label": "血型",
+          "value": ""
+        }
+      ]
     }
   ],
   "home": {
@@ -65,7 +125,7 @@
   "aboutPage": {
     "intro": "團隊理念、成立故事，以及合作洽詢的聯絡方式都在這裡。",
     "story": "妖契者最初只是幾位喜歡直播、喜歡唱歌的朋友的閒聊企劃，聊著聊著就決定認真做一個團隊。\n我們沒有龐大的資源，但有一群願意花下班／下課時間練歌、剪片、寫企劃的夥伴。\n如果你喜歡我們的內容，歡迎訂閱、留言，或透過下方方式與我們聯絡合作。",
-    "contactEmail": "fuyuyu.fans@gmail.com",
+    "contactEmail": "",
     "formspreeId": ""
   },
   "videosPage": {

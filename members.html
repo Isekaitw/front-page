@@ -7,35 +7,37 @@
 <link rel="stylesheet" href="style.css">
 <style>
   .members-full-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
   }
   .member-full-card {
     background: var(--bg-elevated);
     border: 1px solid var(--line);
     border-left: 3px solid var(--cyan-dim);
-    padding: 28px 24px;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
     transition: border-color 0.15s ease;
   }
   .member-full-card:hover { border-left-color: var(--cyan); }
-  .member-full-photo {
-    width: 128px;
-    height: 128px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid var(--line);
-    margin-bottom: 16px;
-    flex-shrink: 0;
+  .member-full-left {
+    flex: 0 0 36%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    padding: 28px 24px;
+    border-right: 1px solid var(--line);
+    overflow-y: auto;
   }
-  .member-full-photo img { width: 100%; height: 100%; object-fit: cover; }
+  .member-full-right {
+    flex: 1;
+    padding: 28px;
+    overflow-y: auto;
+  }
   .member-full-name {
     font-family: var(--font-display);
-    font-size: 1.15rem;
+    font-size: 1.3rem;
     color: var(--text-hi);
   }
   .member-full-role {
@@ -43,21 +45,81 @@
     font-size: 0.85rem;
     margin-top: 4px;
   }
-  .member-full-desc {
-    color: var(--text-mid);
-    font-size: 0.92rem;
-    margin-top: 14px;
-    white-space: pre-line;
-  }
   .member-full-channel {
-    margin-top: 18px;
+    margin-top: 14px;
     display: inline-block;
+    align-self: flex-start;
     color: var(--cyan-bright);
-    font-size: 0.88rem;
+    font-size: 0.85rem;
     border-bottom: 1px solid var(--cyan-dim);
     padding-bottom: 2px;
   }
   .member-full-channel:hover { color: var(--text-hi); border-color: var(--cyan-bright); }
+  .member-detail-list {
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .member-detail-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.85rem;
+    color: var(--text-mid);
+    border-bottom: 1px dashed var(--line);
+    padding-bottom: 6px;
+  }
+  .member-detail-item .detail-label { color: var(--cyan-bright); flex-shrink: 0; }
+  .member-turnaround-frame {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    min-height: 90px;
+    margin-top: 18px;
+    background: var(--bg-elevated-2);
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .member-turnaround-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  .member-turnaround-placeholder {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    color: var(--text-mid);
+    font-size: 0.78rem;
+  }
+  .member-full-story {
+    color: var(--text-mid);
+    font-size: 0.92rem;
+    line-height: 1.8;
+    white-space: pre-line;
+  }
+  @media (max-width: 780px) {
+    .member-full-card {
+      aspect-ratio: auto;
+      flex-direction: column;
+    }
+    .member-full-left {
+      flex: none;
+      max-width: none;
+      border-right: none;
+      border-bottom: 1px solid var(--line);
+    }
+    .member-turnaround-frame {
+      flex: none;
+      aspect-ratio: 4 / 3;
+    }
+  }
 </style>
 </head>
 <body>
@@ -153,16 +215,31 @@
         document.getElementById('membersEmpty').style.display = 'block';
       } else {
         grid.innerHTML = members.map((m, i) => {
-          const photoImg = m.photo || `member-${String(i + 1).padStart(2, '0')}.jpg`;
+          const idx = String(i + 1).padStart(2, '0');
+          const turnaround = m.photoTurnaround || `member-${idx}-full.jpg`;
+          const story = (m.story && m.story.trim()) ? m.story : '角色故事準備中，敬請期待。';
+          const details = Array.isArray(m.details) ? m.details.filter(d => d && d.label && d.label.trim()) : [];
+          const detailsHtml = details.map(d => `
+            <div class="member-detail-item">
+              <span class="detail-label">${escapeHtml(d.label)}</span>
+              <span>${escapeHtml((d.value && d.value.trim()) ? d.value : '未填寫')}</span>
+            </div>
+          `).join('');
           return `
             <div class="member-full-card">
-              <div class="member-full-photo">
-                <img src="${escapeHtml(photoImg)}" alt="${escapeHtml(m.name || '成員照片')}">
+              <div class="member-full-left">
+                <div class="member-full-name">${escapeHtml(m.name)}</div>
+                <div class="member-full-role">${escapeHtml(m.role)}</div>
+                <a href="${safeUrl(m.channelUrl)}" class="member-full-channel" target="_blank" rel="noopener">前往頻道 →</a>
+                ${detailsHtml ? `<div class="member-detail-list">${detailsHtml}</div>` : ''}
+                <div class="member-turnaround-frame">
+                  <img src="${escapeHtml(turnaround)}" alt="${escapeHtml(m.name || '成員')}三視圖立繪" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <span class="member-turnaround-placeholder">三視圖立繪待上傳</span>
+                </div>
               </div>
-              <div class="member-full-name">${escapeHtml(m.name)}</div>
-              <div class="member-full-role">${escapeHtml(m.role)}</div>
-              <p class="member-full-desc">${escapeHtml(m.desc)}</p>
-              <a href="${safeUrl(m.channelUrl)}" class="member-full-channel" target="_blank" rel="noopener">前往頻道 →</a>
+              <div class="member-full-right">
+                <p class="member-full-story">${escapeHtml(story)}</p>
+              </div>
             </div>
           `;
         }).join('');
