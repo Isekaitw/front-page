@@ -1,0 +1,42 @@
+name: Fetch YouTube videos
+
+on:
+  schedule:
+    # 每 6 小時執行一次（UTC 時間 0, 6, 12, 18 點）
+    - cron: '0 */6 * * *'
+  workflow_dispatch: {}   # 允許在 GitHub Actions 頁面手動觸發
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run fetch script
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: python scripts/fetch_videos.py
+
+      - name: Commit videos.json if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- videos.json; then
+            echo "videos.json 沒有變化，略過 commit。"
+          else
+            git add videos.json
+            git commit -m "自動更新影片清單 [skip ci]"
+            git push
+          fi
