@@ -35,6 +35,28 @@
     padding: 28px;
     overflow-y: auto;
   }
+  .member-full-left,
+  .member-full-right {
+    scrollbar-width: thin;
+    scrollbar-color: var(--cyan-dim) var(--bg-elevated-2);
+  }
+  .member-full-left::-webkit-scrollbar,
+  .member-full-right::-webkit-scrollbar {
+    width: 8px;
+  }
+  .member-full-left::-webkit-scrollbar-track,
+  .member-full-right::-webkit-scrollbar-track {
+    background: var(--bg-elevated-2);
+  }
+  .member-full-left::-webkit-scrollbar-thumb,
+  .member-full-right::-webkit-scrollbar-thumb {
+    background: var(--cyan-dim);
+    border-radius: 4px;
+  }
+  .member-full-left::-webkit-scrollbar-thumb:hover,
+  .member-full-right::-webkit-scrollbar-thumb:hover {
+    background: var(--cyan-bright);
+  }
   .member-full-name {
     font-family: var(--font-display);
     font-size: 1.3rem;
@@ -77,7 +99,7 @@
     width: 100%;
     flex: none;
     aspect-ratio: 4 / 3;
-    margin-top: 18px;
+    margin-top: auto;
     background: var(--bg-elevated-2);
     border: 1px solid var(--line);
     overflow: hidden;
