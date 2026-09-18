@@ -113,9 +113,26 @@
     {
       "name": "萊薇娜",
       "role": "代表動物：精靈",
-      "desc": "",
+      "desc": "住在森林裡的精靈，目前正在學習如何融入人類群體",
       "story": "",
       "channelUrl": "https://www.youtube.com/@%E5%A9%89%E5%A4%A2-l8q/featured",
+      "details": [
+        {
+          "label": "生日",
+          "value": ""
+        },
+        {
+          "label": "血型",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "name": "番茄醬",
+      "role": "",
+      "desc": "",
+      "story": "",
+      "channelUrl": "#",
       "details": [
         {
           "label": "生日",
