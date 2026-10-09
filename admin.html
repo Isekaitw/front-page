@@ -72,22 +72,7 @@
     border-color: var(--primary-color, #6366f1);
   }
 
-  .admin-check {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.875rem;
-    color: var(--text-low, #8e8e93);
-    margin-bottom: 24px;
-    cursor: pointer;
-    user-select: none;
-  }
 
-  .admin-check input[type="checkbox"] {
-    cursor: pointer;
-    width: 16px;
-    height: 16px;
-  }
 
   .admin-status {
     border-radius: 6px;
@@ -119,11 +104,6 @@
           <label for="inPassword">密碼</label>
           <input type="password" id="inPassword" autocomplete="current-password" placeholder="請輸入密碼">
         </div>
-        
-        <label class="admin-check">
-          <input type="checkbox" id="inRemember" checked>
-          記住密碼（請勿於公用電腦勾選）
-        </label>
 
         <button class="btn btn-primary" id="loginBtn" style="width:100%; justify-content:center; padding: 12px 0; font-size: 1rem;">登入</button>
       </div>
@@ -377,23 +357,15 @@
     return data.name || '';
   }
 
-  const PASSWORD_KEY = 'vtuber_admin_password';
+  // 舊版曾把密碼存在瀏覽器裡，這裡順便清除殘留的紀錄
+  try { localStorage.removeItem('vtuber_admin_password'); } catch (e) {}
 
-  function getSavedPassword() {
-    return localStorage.getItem(PASSWORD_KEY);
-  }
-
-  async function tryLogin(candidatePassword, remember) {
+  async function tryLogin(candidatePassword) {
     showStatus(loginStatus, '登入中…', 'info');
     try {
       const name = await verifyPassword(candidatePassword);
       password = candidatePassword;
       document.getElementById('editorNameLabel').textContent = name ? ('（' + name + '）') : '';
-      if (remember) {
-        localStorage.setItem(PASSWORD_KEY, candidatePassword);
-      } else {
-        localStorage.removeItem(PASSWORD_KEY);
-      }
       await enterEditor();
     } catch (e) {
       showStatus(loginStatus, e.message, 'err');
@@ -403,12 +375,11 @@
 
   document.getElementById('loginBtn').addEventListener('click', () => {
     const pw = document.getElementById('inPassword').value;
-    const remember = document.getElementById('inRemember').checked;
     if (!pw) {
       showStatus(loginStatus, '請輸入密碼。', 'err');
       return;
     }
-    tryLogin(pw, remember);
+    tryLogin(pw);
   });
 
   document.getElementById('inPassword').addEventListener('keydown', (e) => {
@@ -669,11 +640,6 @@
     }
   });
 
-  const savedPw = getSavedPassword();
-  if (savedPw) {
-    document.getElementById('inPassword').value = savedPw;
-    tryLogin(savedPw, true);
-  }
 })();
 </script>
 </body>
