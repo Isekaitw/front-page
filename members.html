@@ -222,7 +222,7 @@
     }
   }
 
-  fetch('content.json')
+  fetch('content.json', { cache: 'no-cache' })
     .then(res => res.json())
     .then(data => {
       const page = data.membersPage || {};

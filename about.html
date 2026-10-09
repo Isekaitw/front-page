@@ -173,7 +173,7 @@
     return 'mailto:' + encodeURIComponent(email).replace(/%40/g, '@');
   }
 
-  fetch('content.json')
+  fetch('content.json', { cache: 'no-cache' })
     .then(res => res.json())
     .then(data => {
       const page = data.aboutPage || {};
