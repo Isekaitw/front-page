@@ -208,7 +208,7 @@
   }
 
   // 1. 讀取精選影片資料
-  fetch('videos.json')
+  fetch('videos.json', { cache: 'no-cache' })
     .then(res => res.json())
     .then(data => {
       const combined = [...(data.videos || []), ...(data.streams || [])]
@@ -233,7 +233,7 @@
     .catch(() => {});
 
   // 2. 讀取頁面文字與成員資料
-  fetch('content.json')
+  fetch('content.json', { cache: 'no-cache' })
     .then(res => res.json())
     .then(data => {
       const home = data.home || {};
