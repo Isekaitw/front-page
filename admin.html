@@ -434,9 +434,15 @@
   let channelsData = null;
 
   async function enterEditor() {
-    showStatus(editorStatus, '載入內容中…', 'info');
-    editorView.style.display = 'block';
-    loginView.style.display = 'none';
+    // 首次進入：留在登入畫面等資料載入完成，再一次切換到已填好內容的編輯畫面
+    // 重新載入：編輯畫面維持顯示，載入完成後直接更新欄位
+    const editorAlreadyVisible = editorView.style.display === 'block';
+    if (editorAlreadyVisible) {
+      showStatus(editorStatus, '重新載入中…', 'info');
+    } else {
+      showStatus(loginStatus, '載入內容中…', 'info');
+    }
+
     try {
       const [c, ch] = await Promise.all([
         apiGetFile('content.json'),
@@ -448,7 +454,12 @@
       channelsSha = ch.sha;
       fillForm();
       hideStatus(editorStatus);
+      hideStatus(loginStatus);
+      editorView.style.display = 'block';
+      loginView.style.display = 'none';
     } catch (e) {
+      editorView.style.display = 'block';
+      loginView.style.display = 'none';
       showStatus(editorStatus, e.message, 'err');
     }
   }
@@ -539,131 +550,4 @@
       });
     });
   }
-  document.getElementById('addMemberBtn').addEventListener('click', () => {
-    const current = readMembersFromForm();
-    current.push({ name: '', role: '', desc: '', story: '', channelUrl: '#', details: [{ label: '生日', value: '' }, { label: '血型', value: '' }] });
-    renderMemberEditors(current);
-  });
-  function readMembersFromForm() {
-    return Array.from(document.querySelectorAll('[data-member-row]')).map(row => ({
-      name: row.querySelector('.m-name').value.trim(),
-      role: row.querySelector('.m-role').value.trim(),
-      desc: row.querySelector('.m-desc').value.trim(),
-      story: row.querySelector('.m-story').value.trim(),
-      channelUrl: row.querySelector('.m-url').value.trim() || '#',
-      details: Array.from(row.querySelectorAll('[data-detail-row]')).map(dr => ({
-        label: dr.querySelector('.m-detail-label').value.trim(),
-        value: dr.querySelector('.m-detail-value').value.trim()
-      }))
-    }));
-  }
-
-  function renderChannelEditors(channels) {
-    const wrap = document.getElementById('channelEditorList');
-    wrap.innerHTML = channels.map((c, i) => `
-      <div class="admin-channel-row" data-channel-row="${i}">
-        <input type="text" class="c-name" placeholder="成員名稱" value="${escapeAttr(c.name)}">
-        <input type="text" class="c-id" placeholder="頻道 ID（UC 開頭）" value="${escapeAttr(c.channel_id)}">
-        <button type="button" class="admin-remove-btn" data-remove-channel="${i}">移除</button>
-      </div>
-    `).join('');
-    wrap.querySelectorAll('[data-remove-channel]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const idx = Number(btn.dataset.removeChannel);
-        const current = readChannelsFromForm();
-        current.splice(idx, 1);
-        renderChannelEditors(current);
-      });
-    });
-  }
-  document.getElementById('addChannelBtn').addEventListener('click', () => {
-    const current = readChannelsFromForm();
-    current.push({ name: '', channel_id: '' });
-    renderChannelEditors(current);
-  });
-  function readChannelsFromForm() {
-    return Array.from(document.querySelectorAll('[data-channel-row]')).map(row => ({
-      name: row.querySelector('.c-name').value.trim(),
-      channel_id: row.querySelector('.c-id').value.trim()
-    }));
-  }
-
-  function escapeHtml(str) {
-    return (str || '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
-  }
-  function escapeAttr(str) {
-    return escapeHtml(str).replace(/"/g, '&quot;');
-  }
-
-  document.getElementById('saveBtn').addEventListener('click', async () => {
-    showStatus(saveStatus, '儲存中…', 'info');
-
-    const formspreeId = document.getElementById('f_formspreeId').value.trim();
-    if (formspreeId && !/^[a-zA-Z0-9]+$/.test(formspreeId)) {
-      showStatus(saveStatus, 'Formspree 表單 ID 只能是英數字，請確認是否貼錯內容（例如網址）。', 'err');
-      return;
-    }
-    const contactEmail = document.getElementById('f_contactEmail').value.trim();
-    if (contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)) {
-      showStatus(saveStatus, '聯絡信箱格式看起來不正確，請確認後再儲存。', 'err');
-      return;
-    }
-
-    const newContent = {
-      site: {
-        footerCopyright: document.getElementById('f_footerCopyright').value.trim(),
-        social: {
-          youtube: document.getElementById('f_socialYoutube').value.trim() || '#',
-          twitter: document.getElementById('f_socialTwitter').value.trim() || '#',
-          discord: document.getElementById('f_socialDiscord').value.trim() || '#'
-        }
-      },
-      members: readMembersFromForm(),
-      home: {
-        heroTitle: document.getElementById('f_heroTitle').value.trim(),
-        aboutText: document.getElementById('f_aboutText').value.trim(),
-        stats: {
-          foundedYear: document.getElementById('f_foundedYear').value.trim(),
-          memberCount: document.getElementById('f_memberCount').value.trim()
-        }
-      },
-      membersPage: {
-        intro: document.getElementById('f_membersIntro').value.trim()
-      },
-      aboutPage: {
-        intro: document.getElementById('f_aboutIntro').value.trim(),
-        story: document.getElementById('f_aboutStory').value.trim(),
-        contactEmail: contactEmail,
-        formspreeId: formspreeId
-      },
-      videosPage: {
-        intro: document.getElementById('f_videosIntro').value.trim()
-      }
-    };
-
-    const newChannels = { channels: readChannelsFromForm() };
-
-    try {
-      contentSha = await apiPutFile('content.json', newContent, contentSha, '後台更新網站文字內容');
-      channelsSha = await apiPutFile('channels.json', newChannels, channelsSha, '後台更新 YouTube 頻道清單');
-      contentData = newContent;
-      channelsData = newChannels;
-      showStatus(saveStatus, '已儲存！GitHub Pages 約 1 分鐘後會更新到正式網站。', 'ok');
-    } catch (e) {
-      if (e.status === 409) {
-        showStatus(saveStatus, '儲存失敗：內容在其他地方被更新過，請按左上角「重新載入」後再修改一次。', 'err');
-      } else {
-        showStatus(saveStatus, e.message, 'err');
-      }
-    }
-  });
-
-  const savedPw = getSavedPassword();
-  if (savedPw) {
-    document.getElementById('inPassword').value = savedPw;
-    tryLogin(savedPw, true);
-  }
-})();
-</script>
-</body>
-</html>
+  document.getElementById('addMemberBtn').addEventListene
